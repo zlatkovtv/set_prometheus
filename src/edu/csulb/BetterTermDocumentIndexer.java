@@ -19,15 +19,8 @@ public class BetterTermDocumentIndexer {
     static Scanner reader = new Scanner(System.in);
 
     public static void main(String[] args) {
-//		DocumentCorpus corpus = DirectoryCorpus.loadTextDirectory(Paths.get("").toAbsolutePath(), ".txt");
-//		Index index = indexCorpus(corpus) ;
-//		// We aren't ready to use a full query parser; for now, we'll only support single-term queries.
-//		String query = "whale"; // hard-coded search for "whale"
-//		for (Posting p : index.getPostings(query)) {
-//			System.out.println("Document " + corpus.getDocument(p.getDocumentId()).getTitle());
-//		}
-
-        DocumentCorpus corpus = DirectoryCorpus.loadTextDirectory(Paths.get("").toAbsolutePath(), ".txt");
+//        When we do UI, include option to choose directory type
+        DocumentCorpus corpus = DirectoryCorpus.loadJsonDirectory(Paths.get("").toAbsolutePath());
         Index index = indexCorpus(corpus);
         String query;
         String input;
@@ -69,16 +62,7 @@ public class BetterTermDocumentIndexer {
                 ((InvertedIndex) index).addTerm(processor.processToken(token), d.getId());
             }
         }
-        // TODO:
-        // Get all the documents in the corpus by calling GetDocuments().
-        // Iterate through the documents, and:
-        // Tokenize the document's content by constructing an EnglishTokenStream around the document's content.
-        // Iterate through the tokens in the document, processing them using a BasicTokenProcessor,
-        //		and adding them to the HashSet vocabulary.
 
-        // TODO:
-        // Constuct a TermDocumentMatrix once you know the size of the vocabulary.
-        // THEN, do the loop again! But instead of inserting into the HashSet, add terms to the index with addPosting.
         return index;
     }
 }
