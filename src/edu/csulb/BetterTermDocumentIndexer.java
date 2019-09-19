@@ -5,12 +5,14 @@ import cecs429.documents.Document;
 import cecs429.documents.DocumentCorpus;
 import cecs429.index.Index;
 import cecs429.index.InvertedIndex;
+import cecs429.index.PositionalInvertedIndex;
 import cecs429.index.Posting;
 import cecs429.text.BasicTokenProcessor;
 import cecs429.text.EnglishTokenStream;
 import cecs429.text.TokenStream;
 
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Scanner;
 
@@ -20,7 +22,7 @@ public class BetterTermDocumentIndexer {
 
     public static void main(String[] args) {
 //        When we do UI, include option to choose directory type
-        DocumentCorpus corpus = DirectoryCorpus.loadJsonDirectory(Paths.get("").toAbsolutePath());
+        DocumentCorpus corpus = DirectoryCorpus.loadTextDirectory(Paths.get("moby-dick").toAbsolutePath(), ".txt");
         Index index = indexCorpus(corpus);
         String query;
         String input;
@@ -55,11 +57,13 @@ public class BetterTermDocumentIndexer {
             }
         }
 
-        Index index = new InvertedIndex();
+        Index index = new PositionalInvertedIndex();
         for (Document d : corpus.getDocuments()) {
             TokenStream ts = new EnglishTokenStream(d.getContent());
+            int position = 0;
             for (String token : ts.getTokens()) {
-                ((InvertedIndex) index).addTerm(processor.processToken(token), d.getId());
+                ((PositionalInvertedIndex) index).addTerm(processor.processToken(token), d.getId(), position);
+                position++;
             }
         }
 
