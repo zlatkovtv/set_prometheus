@@ -7,6 +7,8 @@ import cecs429.index.Index;
 import cecs429.index.InvertedIndex;
 import cecs429.index.PositionalInvertedIndex;
 import cecs429.index.Posting;
+import cecs429.query.BooleanQueryParser;
+import cecs429.query.QueryComponent;
 import cecs429.text.AdvancedTokenProcessor;
 //import cecs429.text.BasicTokenProcessor;
 import cecs429.text.EnglishTokenStream;
@@ -37,7 +39,9 @@ public class BetterTermDocumentIndexer {
                     break;
 
                 default:
-                    for (Posting p : index.getPostings(input)) {
+                    BooleanQueryParser bqp = new BooleanQueryParser();
+                    QueryComponent qc = bqp.parseQuery(input);
+                    for (Posting p : qc.getPostings(index)) {
                         System.out.println("Document ID " + p.getDocumentId());
                     }
                     break;
