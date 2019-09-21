@@ -1,5 +1,9 @@
 package cecs429.text;
 
+import cecs429.text.stemmer.SnowballStemmer;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -7,18 +11,82 @@ import java.util.List;
  * converting it to all lowercase.
  */
 public class AdvancedTokenProcessor implements TokenProcessor {
-	@Override
-	public List<String> processToken(String token) {
-		return null; ///token.replaceAll("\\W", "").toLowerCase();
-	}
+    Class stemClass;
+    SnowballStemmer stemmer;
 
-	public List<String> removeAlphaNum(){return null;}
+    {
+        try {
+            stemClass = Class.forName("cecs429.text.stemmer.englishStemmer");
+            stemmer = (SnowballStemmer) stemClass.newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-	public List<String> removeApost(){return null;}
 
-	public List<String> hyphenate(){return null;}
+    @Override
+    public List<String> processToken(String token) {
+        List<String> allStrings;
+        String processString = token;
 
-	public List<String> toLowerCase(){return null;}
+        processString = removeAlphaNum(processString);
+        processString = removeApost(processString);
+        processString = toLowerCase(processString);
+        allStrings = hyphenate(processString);
 
-	public List<String> callStemmer(){return null;}
+        return callStemmer(allStrings);
+
+    }
+
+    public String removeAlphaNum(String s) {
+
+        StringBuilder sb = new StringBuilder(s);
+        int i = 0;
+        while (!Character.isDigit(sb.charAt(i)) && !Character.isLetter(sb.charAt(i))) {
+            sb.replace(i, i + 1, "");
+
+        }
+        i = sb.length() - 1;
+        while (!Character.isDigit(sb.charAt(i)) && !Character.isLetter(sb.charAt(i))) {
+
+            sb.deleteCharAt(i);
+            i = sb.length() - 1;
+        }
+
+        return sb.toString();
+    }
+
+    public String removeApost(String s) {
+        s = s.replaceAll("'", "");
+        s = s.replaceAll("\"", "");
+        return s;
+    }
+
+
+    public String toLowerCase(String s) {
+        s = s.toLowerCase();
+        return s;
+    }
+
+    public List<String> hyphenate(String s) {
+        ArrayList<String> sb = new ArrayList<>();
+        sb.add(s.replaceAll("-", ""));
+        sb.addAll(Arrays.asList(s.split("-")));
+        return sb;
+    }
+
+    public List<String> callStemmer(List<String> s) {
+        List<String> stemmString = new ArrayList<String>();
+        stemmString.addAll(s);
+
+        for (String sw : s) {
+            stemmer.setCurrent(sw);
+            stemmer.stem();
+            stemmString.add(stemmer.getCurrent());
+
+        }
+
+
+        return stemmString;
+    }
 }

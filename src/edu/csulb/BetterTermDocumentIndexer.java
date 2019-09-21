@@ -7,13 +7,15 @@ import cecs429.index.Index;
 import cecs429.index.InvertedIndex;
 import cecs429.index.PositionalInvertedIndex;
 import cecs429.index.Posting;
-import cecs429.text.BasicTokenProcessor;
+import cecs429.text.AdvancedTokenProcessor;
+//import cecs429.text.BasicTokenProcessor;
 import cecs429.text.EnglishTokenStream;
 import cecs429.text.TokenStream;
 
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Scanner;
 
 public class BetterTermDocumentIndexer {
@@ -46,14 +48,14 @@ public class BetterTermDocumentIndexer {
 
     private static Index indexCorpus(DocumentCorpus corpus) {
         HashSet<String> vocabulary = new HashSet<>();
-        BasicTokenProcessor processor = new BasicTokenProcessor();
+        AdvancedTokenProcessor processor = new AdvancedTokenProcessor();
 
         // First, build the vocabulary hash set.
         for (Document d : corpus.getDocuments()) {
             TokenStream ts = new EnglishTokenStream(d.getContent());
             for (String token : ts.getTokens()) {
                 //add all return a list 
-                vocabulary.add(processor.processToken(token));
+                vocabulary.addAll(processor.processToken(token));
             }
         }
 
@@ -62,7 +64,12 @@ public class BetterTermDocumentIndexer {
             TokenStream ts = new EnglishTokenStream(d.getContent());
             int position = 0;
             for (String token : ts.getTokens()) {
-                ((PositionalInvertedIndex) index).addTerm(processor.processToken(token), d.getId(), position);
+                List<String> terms = processor.processToken(token);
+                //To D0: Ask Neil how to posiiton mutli-word terms.
+                for (String term: terms ) {
+                    ((PositionalInvertedIndex) index).addTerm(term, d.getId(), position);
+                }
+
                 position++;
             }
         }
