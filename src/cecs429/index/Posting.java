@@ -23,6 +23,10 @@ public class Posting {
 		return mDocumentId;
 	}
 
+	public List<Integer> getPositions() {
+		return this.mPositions;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		Posting second = (Posting) obj;

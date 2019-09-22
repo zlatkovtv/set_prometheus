@@ -151,6 +151,7 @@ public class BooleanQueryParser {
             // Locate the next quotation if exist
             int nextQuotation = subquery.indexOf('\"', startIndex);
             if (nextQuotation < 0) {
+                --startIndex;
                 // No more literals in this subquery.
                 lengthOut = nextSpace - startIndex;
                 return new Literal(
@@ -160,7 +161,7 @@ public class BooleanQueryParser {
             } else {
                 lengthOut = nextQuotation - startIndex;
                 return new Literal(
-                        new StringBounds(startIndex, lengthOut),
+                        new StringBounds(startIndex, lengthOut + 1),
                         new PhraseLiteral(subquery.substring(startIndex, startIndex + lengthOut)));
             }
         } else {
