@@ -3,6 +3,8 @@ package cecs429.query;
 import cecs429.index.Index;
 import cecs429.index.Posting;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,11 +20,18 @@ public class AndQuery implements QueryComponent {
 	
 	@Override
 	public List<Posting> getPostings(Index index) {
-		List<Posting> result = null;
-		
-		// TODO: program the merge for an AndQuery, by gathering the postings of the composed QueryComponents and
-		// intersecting the resulting postings.
-		
+		Iterator<QueryComponent> iterator = mComponents.iterator();
+
+		List<Posting> result = new ArrayList<>();
+
+		result.addAll(iterator.next().getPostings(index));
+
+		for (; iterator.hasNext(); ) {
+			QueryComponent component = iterator.next();
+			result.retainAll(component.getPostings(index));
+		}
+
+		// we retain all elements that are already there. we dont add postings with duplicate ids. change?
 		return result;
 	}
 	

@@ -146,28 +146,24 @@ public class BooleanQueryParser {
         // Locate the next space to find the end of this literal.
         int nextSpace = subquery.indexOf(' ', startIndex);
 
-
         if (subquery.charAt(startIndex) == '\"') {
+            ++startIndex;
             // Locate the next quotation if exist
-            int nextQuotation = subquery.indexOf('\"', startIndex+1);
+            int nextQuotation = subquery.indexOf('\"', startIndex);
             if (nextQuotation < 0) {
                 // No more literals in this subquery.
-                ++startIndex;
                 lengthOut = nextSpace - startIndex;
                 return new Literal(
                         new StringBounds(startIndex, lengthOut),
                         new TermLiteral(subquery.substring(startIndex, startIndex + lengthOut)));
 
             } else {
-                ++startIndex;
                 lengthOut = nextQuotation - startIndex;
                 return new Literal(
                         new StringBounds(startIndex, lengthOut),
                         new PhraseLiteral(subquery.substring(startIndex, startIndex + lengthOut)));
             }
-
         } else {
-
             if (nextSpace < 0) {
                 // No more literals in this subquery.
                 lengthOut = subLength - startIndex;
@@ -178,7 +174,6 @@ public class BooleanQueryParser {
             return new Literal(
                     new StringBounds(startIndex, lengthOut),
                     new TermLiteral(subquery.substring(startIndex, startIndex + lengthOut)));
-
         }
 
 

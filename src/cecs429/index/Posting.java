@@ -10,27 +10,6 @@ public class Posting {
 	private int mDocumentId;
 	private List<Integer> mPositions;
 
-	public int getmDocumentId() {
-		return mDocumentId;
-	}
-
-	public void setmDocumentId(int mDocumentId) {
-		this.mDocumentId = mDocumentId;
-	}
-
-	public List<Integer> getmPositions() {
-		return mPositions;
-	}
-
-	public void setmPositions(List<Integer> mPositions) {
-		this.mPositions = mPositions;
-	}
-//
-//	public Posting(int documentId, List<Integer> mPositions) {
-//		mDocumentId = documentId;
-//		this.mPositions = mPositions;
-//	}
-
 	public Posting(int documentId) {
 		mDocumentId = documentId;
 		this.mPositions = new ArrayList<>();
@@ -42,5 +21,11 @@ public class Posting {
 	
 	public int getDocumentId() {
 		return mDocumentId;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		Posting second = (Posting) obj;
+		return this.getDocumentId() == second.getDocumentId();
 	}
 }

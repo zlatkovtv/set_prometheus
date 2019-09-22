@@ -1,6 +1,7 @@
 package cecs429.text;
 
 import cecs429.text.stemmer.SnowballStemmer;
+import cecs429.text.stemmer.englishStemmer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,18 +12,11 @@ import java.util.List;
  * converting it to all lowercase.
  */
 public class AdvancedTokenProcessor implements TokenProcessor {
-    Class stemClass;
-    SnowballStemmer stemmer;
+    private SnowballStemmer stemmer;
 
-    {
-        try {
-            stemClass = Class.forName("cecs429.text.stemmer.englishStemmer");
-            stemmer = (SnowballStemmer) stemClass.newInstance();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public AdvancedTokenProcessor() {
+        this.stemmer = new englishStemmer();
     }
-
 
     @Override
     public List<String> processToken(String token) {
@@ -71,7 +65,10 @@ public class AdvancedTokenProcessor implements TokenProcessor {
     public List<String> hyphenate(String s) {
         ArrayList<String> sb = new ArrayList<>();
         sb.add(s.replaceAll("-", ""));
-        sb.addAll(Arrays.asList(s.split("-")));
+        if(sb.indexOf('-') > 0) {
+            sb.addAll(Arrays.asList(s.split("-")));
+        }
+
         return sb;
     }
 
@@ -83,9 +80,7 @@ public class AdvancedTokenProcessor implements TokenProcessor {
             stemmer.setCurrent(sw);
             stemmer.stem();
             stemmString.add(stemmer.getCurrent());
-
         }
-
 
         return stemmString;
     }
