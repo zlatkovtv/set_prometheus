@@ -28,39 +28,75 @@ public class PhraseLiteral implements QueryComponent {
 	
 	@Override
 	public List<Posting> getPostings(Index index) {
-		// couch bag tree
-		List<Posting> firstTermPostings = index.getPostings(mTerms.get(0)); // 0, 1, 3
-		Map<Integer, List<List<Integer>>> results = new TreeMap<>();
+		Iterator<String> terms = mTerms.iterator();
+		//no terms detected
+		if(!terms.hasNext()) {
+			return new ArrayList<>();
+		}
+
+		List<Posting> firstTermPostings = index.getPostings(terms.next()); // 0, 1, 3
+		Map<Integer, List<Integer>> results = new TreeMap<>();
 
 		for (int i = 0; i < firstTermPostings.size(); i++) {
 			Posting p = firstTermPostings.get(i);
-			List<List<Integer>> tmpList = new ArrayList<>();
-			tmpList.add(p.getPositions());
-			results.put(p.getDocumentId(), tmpList);
+			results.put(p.getDocumentId(), p.getPositions());
 		}
 
-		int k = 1;
-		for(Map.Entry<Integer, List<List<Integer>>> entry : results.entrySet()) {
-			for (int j = k; j < mTerms.size(); j++) {
-				List<Posting> nextPostingList = index.getPostings(mTerms.get(j)); // 0, 2, 3
-				if(!nextPostingList.stream().filter(o -> o.getDocumentId() == (entry.getKey())).findFirst().isPresent()) {
-					// test below
-					results.remove(entry.getKey());
-					continue;
+		Iterator<Map.Entry<Integer, List<Integer>>> mapIterator = new TreeMap<>(results).entrySet().iterator();
+		while(mapIterator.hasNext()) {
+			Map.Entry<Integer, List<Integer>> entry = mapIterator.next();
+			Integer currentDocumentId = entry.getKey();
+			List<Integer> currentPositions = entry.getValue();
+
+			//restart iterator and start at index 1
+			terms = mTerms.iterator();
+			terms.next();
+
+			while (terms.hasNext()) {
+				List<Posting> nextPostingList = index.getPostings(terms.next());
+				Posting posting = nextPostingList.stream()
+						.filter(p -> p.getDocumentId() == currentDocumentId)
+						.findFirst()
+						.orElse(null);
+
+				if(posting == null) {
+					results.remove(currentDocumentId);
+					break;
 				}
 
-				List<List<Integer>> positionsList = results.get(entry.getKey());
-				positionsList.add(nextPostingList.get(j).getPositions());
-				results.put(entry.getKey(), positionsList);
+				List<Integer> mergedPositions = new ArrayList<>();
+
+				for (int i = 0; i < currentPositions.size(); i++){
+					for (Integer nextPostingPosition: posting.getPositions()) {
+						if(((currentPositions.get(i) + 1) == nextPostingPosition)) {
+							mergedPositions.add(currentPositions.get(i));
+							mergedPositions.add(currentPositions.get(i) + 1);
+						}
+					}
+				}
+
+				// no adjacent positions for term
+				if(mergedPositions.size() == 0) {
+					results.remove(currentDocumentId);
+					break;
+				}
+
+				results.put(currentDocumentId, mergedPositions);
 			}
-			k++;
 		}
 
-		return null;
-		// TODO: program this method. Retrieve the postings for the individual terms in the phrase,
-		// and positional merge them together.
+		return buildIntoPostinsList(results);
 	}
-	
+
+	private List<Posting> buildIntoPostinsList(Map<Integer, List<Integer>> results) {
+		List<Posting> postings = new ArrayList<>();
+		for (Map.Entry<Integer, List<Integer>> entry: results.entrySet()) {
+			postings.add(new Posting(entry.getKey(), entry.getValue()));
+		}
+
+		return postings;
+	}
+
 	@Override
 	public String toString() {
 		return "\"" + String.join(" ", mTerms) + "\"";

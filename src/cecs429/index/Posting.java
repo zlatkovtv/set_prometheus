@@ -15,6 +15,11 @@ public class Posting {
 		this.mPositions = new ArrayList<>();
 	}
 
+	public Posting(int documentId, List<Integer> positions) {
+		mDocumentId = documentId;
+		this.mPositions = positions;
+	}
+
 	public void addPosition(int position) {
 		this.mPositions.add(position);
 	}
