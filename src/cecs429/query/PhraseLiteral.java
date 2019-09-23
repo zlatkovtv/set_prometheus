@@ -91,7 +91,9 @@ public class PhraseLiteral implements QueryComponent {
 	private List<Posting> buildIntoPostinsList(Map<Integer, List<Integer>> results) {
 		List<Posting> postings = new ArrayList<>();
 		for (Map.Entry<Integer, List<Integer>> entry: results.entrySet()) {
-			postings.add(new Posting(entry.getKey(), entry.getValue()));
+			List<Integer> positions = entry.getValue();
+			Collections.sort(positions);
+			postings.add(new Posting(entry.getKey(), positions));
 		}
 
 		return postings;

@@ -73,15 +73,18 @@ public class AdvancedTokenProcessor implements TokenProcessor {
     }
 
     public List<String> callStemmer(List<String> s) {
-        List<String> stemmString = new ArrayList<String>();
-        stemmString.addAll(s);
+        List<String> stemmed = new ArrayList<String>();
+        stemmed.addAll(s);
 
         for (String sw : s) {
             stemmer.setCurrent(sw);
             stemmer.stem();
-            stemmString.add(stemmer.getCurrent());
+            String stemmedWord = stemmer.getCurrent();
+            if(!sw.equals(stemmedWord)) {
+                stemmed.add(stemmedWord);
+            }
         }
 
-        return stemmString;
+        return stemmed;
     }
 }
