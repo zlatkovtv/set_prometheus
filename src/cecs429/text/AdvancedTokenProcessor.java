@@ -20,16 +20,30 @@ public class AdvancedTokenProcessor implements TokenProcessor {
 
     @Override
     public List<String> processToken(String token) {
-        List<String> allStrings;
-        String processString = token;
+        List<String> processedTokens;
 
-        processString = removeAlphaNum(processString);
+        String processedToken = normalizeToken(token);
+        processedTokens = hyphenate(processedToken);
+
+        for (String pt: processedTokens) {
+            String stem = stemToken(pt);
+            if(!pt.equals(stem)) {
+                processedTokens.add(stem);
+            }
+        }
+
+        return processedTokens;
+
+    }
+
+    public String processQueryToken(String token) {
+        return stemToken(normalizeToken(token));
+    }
+
+    public String normalizeToken(String token) {
+        String processString = removeAlphaNum(token);
         processString = removeApost(processString);
-        processString = toLowerCase(processString);
-        allStrings = hyphenate(processString);
-
-        return callStemmer(allStrings);
-
+        return toLowerCase(processString);
     }
 
     public String removeAlphaNum(String s) {
@@ -72,19 +86,9 @@ public class AdvancedTokenProcessor implements TokenProcessor {
         return sb;
     }
 
-    public List<String> callStemmer(List<String> s) {
-        List<String> stemmed = new ArrayList<String>();
-        stemmed.addAll(s);
-
-        for (String sw : s) {
-            stemmer.setCurrent(sw);
-            stemmer.stem();
-            String stemmedWord = stemmer.getCurrent();
-            if(!sw.equals(stemmedWord)) {
-                stemmed.add(stemmedWord);
-            }
-        }
-
-        return stemmed;
+    public String stemToken(String token) {
+        stemmer.setCurrent(token);
+        stemmer.stem();
+        return stemmer.getCurrent();
     }
 }

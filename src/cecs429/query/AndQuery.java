@@ -2,6 +2,7 @@ package cecs429.query;
 
 import cecs429.index.Index;
 import cecs429.index.Posting;
+import cecs429.text.TokenProcessor;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -19,16 +20,16 @@ public class AndQuery implements QueryComponent {
 	}
 	
 	@Override
-	public List<Posting> getPostings(Index index) {
+	public List<Posting> getPostings(Index index, TokenProcessor processor) {
 		Iterator<QueryComponent> iterator = mComponents.iterator();
 
 		List<Posting> result = new ArrayList<>();
 
-		result.addAll(iterator.next().getPostings(index));
+		result.addAll(iterator.next().getPostings(index, processor));
 
 		for (; iterator.hasNext(); ) {
 			QueryComponent component = iterator.next();
-			result.retainAll(component.getPostings(index));
+			result.retainAll(component.getPostings(index, processor));
 		}
 
 		// we retain all elements that are already there. we dont add postings with duplicate ids. change?

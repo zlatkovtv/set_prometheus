@@ -2,6 +2,7 @@ package cecs429.query;
 
 import cecs429.index.Index;
 import cecs429.index.Posting;
+import cecs429.text.TokenProcessor;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -21,12 +22,12 @@ public class OrQuery implements QueryComponent {
 	}
 	
 	@Override
-	public List<Posting> getPostings(Index index) {
+	public List<Posting> getPostings(Index index, TokenProcessor processor) {
 
 		List<Posting> result = new ArrayList<>();
 
 		for (QueryComponent component: mComponents) {
-			result.addAll(component.getPostings(index));
+			result.addAll(component.getPostings(index, processor));
 		}
 
 		HashSet<Object> seen=new HashSet<>();

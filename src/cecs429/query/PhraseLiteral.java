@@ -2,8 +2,10 @@ package cecs429.query;
 
 import cecs429.index.Index;
 import cecs429.index.Posting;
+import cecs429.text.TokenProcessor;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Represents a phrase literal consisting of one or more terms that must occur in sequence.
@@ -27,8 +29,10 @@ public class PhraseLiteral implements QueryComponent {
 	}
 	
 	@Override
-	public List<Posting> getPostings(Index index) {
-		Iterator<String> terms = mTerms.iterator();
+	public List<Posting> getPostings(Index index, TokenProcessor processor) {
+		// normalize tokens
+		List<String> normalizedTokens = new ArrayList<>(mTerms.stream().map(t -> processor.processQueryToken(t)).collect(Collectors.toList()));
+		Iterator<String> terms = normalizedTokens.iterator();
 		//no terms detected
 		if(!terms.hasNext()) {
 			return new ArrayList<>();
@@ -49,7 +53,7 @@ public class PhraseLiteral implements QueryComponent {
 			List<Integer> currentPositions = entry.getValue();
 
 			//restart iterator and start at index 1
-			terms = mTerms.iterator();
+			terms = normalizedTokens.iterator();
 			terms.next();
 
 			while (terms.hasNext()) {
