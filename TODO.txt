@@ -1,2 +1,5 @@
-Fix duplicate terms that are appearing in list - probably in AdvancedTokenProcessor
-Finish positional merge algorithm
+Only store stemmed words for proccessToken and processQueryToken
+Change And and Or query to old fashioned methods
+Change positionalmerge to one like the book. Dont use treemap, use list of lists.
+Reading from json is brokne, fix
+UI

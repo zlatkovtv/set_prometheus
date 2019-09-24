@@ -41,7 +41,8 @@ public class BetterTermDocumentIndexer {
                 default:
                     BooleanQueryParser bqp = new BooleanQueryParser();
                     QueryComponent qc = bqp.parseQuery(input);
-                    for (Posting p : qc.getPostings(index)) {
+                    AdvancedTokenProcessor pr = new AdvancedTokenProcessor();
+                    for (Posting p : qc.getPostings(index, pr)) {
                         System.out.println("Document ID " + p.getDocumentId());
                     }
                     break;
@@ -69,7 +70,7 @@ public class BetterTermDocumentIndexer {
             int position = 0;
             for (String token : ts.getTokens()) {
                 List<String> terms = processor.processToken(token);
-                //To D0: Ask Neil how to posiiton mutli-word terms.
+                //To D0: Ask professor how to posiiton hyphenated terms.
                 for (String term: terms ) {
                     ((PositionalInvertedIndex) index).addTerm(term, d.getId(), position);
                 }
