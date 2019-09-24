@@ -21,19 +21,16 @@ public class AdvancedTokenProcessor implements TokenProcessor {
     @Override
     public List<String> processToken(String token) {
         List<String> processedTokens;
+        List<String> stemmedTokens = new ArrayList<>();
 
         String processedToken = normalizeToken(token);
         processedTokens = hyphenate(processedToken);
 
         for (String pt: processedTokens) {
-            String stem = stemToken(pt);
-            if(!pt.equals(stem)) {
-                processedTokens.add(stem);
-            }
+            stemmedTokens.add(stemToken(pt));
         }
 
-        return processedTokens;
-
+        return stemmedTokens;
     }
 
     public String processQueryToken(String token) {
