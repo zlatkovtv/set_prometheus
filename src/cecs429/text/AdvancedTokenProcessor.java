@@ -46,16 +46,16 @@ public class AdvancedTokenProcessor implements TokenProcessor {
     public String removeAlphaNum(String s) {
 
         StringBuilder sb = new StringBuilder(s);
-        int i = 0;
-        while (!Character.isDigit(sb.charAt(i)) && !Character.isLetter(sb.charAt(i))) {
-            sb.replace(i, i + 1, "");
+
+        while (sb.length() > 0 && !Character.isDigit(sb.charAt(0)) && !Character.isLetter(sb.charAt(0))) {
+
+            sb.deleteCharAt(0);
 
         }
-        i = sb.length() - 1;
-        while (!Character.isDigit(sb.charAt(i)) && !Character.isLetter(sb.charAt(i))) {
 
-            sb.deleteCharAt(i);
-            i = sb.length() - 1;
+        while (sb.length() > 0 && !Character.isDigit(sb.charAt(sb.length() - 1)) && !Character.isLetter(sb.charAt(sb.length() - 1))) {
+
+            sb.deleteCharAt(sb.length() - 1);
         }
 
         return sb.toString();

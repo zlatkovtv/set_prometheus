@@ -26,8 +26,14 @@ public class BetterTermDocumentIndexer {
 
     public static void main(String[] args) {
 //        When we do UI, include option to choose directory type
-        DocumentCorpus corpus = DirectoryCorpus.loadTextDirectory(Paths.get("moby-dick").toAbsolutePath(), ".txt");
+        //DocumentCorpus corpus = DirectoryCorpus.loadTextDirectory(Paths.get("moby-dick").toAbsolutePath(), ".txt");
+        DocumentCorpus corpus = DirectoryCorpus.loadJsonDirectory(Paths.get("C:\\Users\\zack-laptop\\Desktop\\json").toAbsolutePath());
+
+        long startTime = System.currentTimeMillis();
         Index index = indexCorpus(corpus);
+        long endTime = System.currentTimeMillis();
+        System.out.println("That took " + (endTime - startTime)/1000.0 + " Seconds");
+
         String query;
         String input;
         while (true) {

@@ -3,11 +3,9 @@ package cecs429.documents;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.stream.JsonReader;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.Reader;
-import java.io.StringReader;
+import java.io.*;
 import java.nio.file.Path;
 
 public class JsonFileDocument implements FileDocument {
@@ -31,30 +29,33 @@ public class JsonFileDocument implements FileDocument {
 
     @Override
     public Reader getContent() {
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(mFilePath.toString()));
-
-            Gson gson = new Gson();
-            JsonObject corpus = gson.fromJson( bufferedReader, JsonObject.class);
-            String content = corpus.getAsJsonObject("content").toString();
-            return new StringReader(content);
-        } catch(Exception e) {
-            throw new RuntimeException(e);
-        }
+        return new StringReader(getJsonData("body"));
     }
 
     @Override
     public String getTitle() {
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(mFilePath.toString()));
-
-            Gson gson = new Gson();
-            JsonObject corpus = gson.fromJson( bufferedReader, JsonObject.class);
-            return corpus.getAsJsonObject("title").toString();
-        } catch(Exception e) {
-            throw new RuntimeException(e);
-        }
+        return getJsonData("title");
     }
+
+    private String getJsonData(String s) {
+        String content = null;
+        try (JsonReader reader = new JsonReader(new BufferedReader(new FileReader(mFilePath.toString())))) {
+            reader.beginObject();
+            while (reader.hasNext()) {
+                if (reader.nextName().equals(s)) {
+                    content = reader.nextString();
+                } else {
+                    reader.skipValue();
+                }
+            }
+            reader.endObject();
+        } catch (IOException e) {
+            System.out.println(e);
+
+        }
+        return content;
+    }
+
 
     public static FileDocument loadJsonFileDocument(Path absolutePath, int documentId) {
         return new JsonFileDocument(documentId, absolutePath);
