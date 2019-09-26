@@ -1,8 +1,5 @@
 package cecs429.documents;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
 
 import java.io.*;

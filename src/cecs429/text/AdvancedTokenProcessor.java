@@ -1,8 +1,5 @@
 package cecs429.text;
 
-import cecs429.text.stemmer.SnowballStemmer;
-import cecs429.text.stemmer.englishStemmer;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,10 +9,10 @@ import java.util.List;
  * converting it to all lowercase.
  */
 public class AdvancedTokenProcessor implements TokenProcessor {
-    private SnowballStemmer stemmer;
+    private Stemmer stemmer;
 
     public AdvancedTokenProcessor() {
-        this.stemmer = new englishStemmer();
+        stemmer = Stemmer.getInstance();
     }
 
     @Override
@@ -27,23 +24,23 @@ public class AdvancedTokenProcessor implements TokenProcessor {
         processedTokens = hyphenate(processedToken);
 
         for (String pt: processedTokens) {
-            stemmedTokens.add(stemToken(pt));
+            stemmedTokens.add(stemmer.stemToken(pt));
         }
 
         return stemmedTokens;
     }
 
     public String processQueryToken(String token) {
-        return stemToken(normalizeToken(token));
+        return stemmer.stemToken(normalizeToken(token));
     }
 
-    public String normalizeToken(String token) {
+    private String normalizeToken(String token) {
         String processString = removeAlphaNum(token);
         processString = removeApost(processString);
         return toLowerCase(processString);
     }
 
-    public String removeAlphaNum(String s) {
+    private String removeAlphaNum(String s) {
 
         StringBuilder sb = new StringBuilder(s);
 
@@ -61,19 +58,18 @@ public class AdvancedTokenProcessor implements TokenProcessor {
         return sb.toString();
     }
 
-    public String removeApost(String s) {
+    private String removeApost(String s) {
         s = s.replaceAll("'", "");
         s = s.replaceAll("\"", "");
         return s;
     }
 
-
-    public String toLowerCase(String s) {
+    private String toLowerCase(String s) {
         s = s.toLowerCase();
         return s;
     }
 
-    public List<String> hyphenate(String s) {
+    private List<String> hyphenate(String s) {
         ArrayList<String> sb = new ArrayList<>();
         sb.add(s.replaceAll("-", ""));
         if(sb.indexOf('-') > 0) {
@@ -81,11 +77,5 @@ public class AdvancedTokenProcessor implements TokenProcessor {
         }
 
         return sb;
-    }
-
-    public String stemToken(String token) {
-        stemmer.setCurrent(token);
-        stemmer.stem();
-        return stemmer.getCurrent();
     }
 }

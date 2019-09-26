@@ -4,37 +4,35 @@ import cecs429.documents.DirectoryCorpus;
 import cecs429.documents.Document;
 import cecs429.documents.DocumentCorpus;
 import cecs429.index.Index;
-import cecs429.index.InvertedIndex;
 import cecs429.index.PositionalInvertedIndex;
 import cecs429.index.Posting;
 import cecs429.query.BooleanQueryParser;
 import cecs429.query.QueryComponent;
 import cecs429.text.AdvancedTokenProcessor;
-//import cecs429.text.BasicTokenProcessor;
 import cecs429.text.EnglishTokenStream;
+import cecs429.text.Stemmer;
 import cecs429.text.TokenStream;
+import cecs429.ui.MainFrameController;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class BetterTermDocumentIndexer {
+    private static Scanner reader = new Scanner(System.in);
+    private Index index;
 
-    static Scanner reader = new Scanner(System.in);
-
-    public static void main(String[] args) {
-//        When we do UI, include option to choose directory type
-        //DocumentCorpus corpus = DirectoryCorpus.loadTextDirectory(Paths.get("moby-dick").toAbsolutePath(), ".txt");
-        DocumentCorpus corpus = DirectoryCorpus.loadJsonDirectory(Paths.get("C:\\Users\\zack-laptop\\Desktop\\json").toAbsolutePath());
+    public void run(Path path) {
+        DocumentCorpus corpus = loadCorpus(path);
 
         long startTime = System.currentTimeMillis();
-        Index index = indexCorpus(corpus);
+        index = indexCorpus(corpus);
         long endTime = System.currentTimeMillis();
+
         System.out.println("That took " + (endTime - startTime)/1000.0 + " Seconds");
 
-        String query;
         String input;
         while (true) {
             System.out.printf("Enter search term or quit to exit. ");
@@ -48,27 +46,20 @@ public class BetterTermDocumentIndexer {
                     BooleanQueryParser bqp = new BooleanQueryParser();
                     QueryComponent qc = bqp.parseQuery(input);
                     AdvancedTokenProcessor pr = new AdvancedTokenProcessor();
-                    for (Posting p : qc.getPostings(index, pr)) {
+                    for (Posting p : qc.getPostings(this.index, pr)) {
                         System.out.println("Document ID " + p.getDocumentId());
                     }
                     break;
             }
         }
+    }
 
+    private DocumentCorpus loadCorpus(Path path) {
+        return DirectoryCorpus.loadJsonDirectory(path);
     }
 
     private static Index indexCorpus(DocumentCorpus corpus) {
-        HashSet<String> vocabulary = new HashSet<>();
         AdvancedTokenProcessor processor = new AdvancedTokenProcessor();
-
-        // First, build the vocabulary hash set.
-        for (Document d : corpus.getDocuments()) {
-            TokenStream ts = new EnglishTokenStream(d.getContent());
-            for (String token : ts.getTokens()) {
-                //add all return a list 
-                vocabulary.addAll(processor.processToken(token));
-            }
-        }
 
         Index index = new PositionalInvertedIndex();
         for (Document d : corpus.getDocuments()) {
@@ -76,7 +67,6 @@ public class BetterTermDocumentIndexer {
             int position = 0;
             for (String token : ts.getTokens()) {
                 List<String> terms = processor.processToken(token);
-                //To D0: Ask professor how to posiiton hyphenated terms.
                 for (String term: terms ) {
                     ((PositionalInvertedIndex) index).addTerm(term, d.getId(), position);
                 }
@@ -86,5 +76,16 @@ public class BetterTermDocumentIndexer {
         }
 
         return index;
+    }
+
+    private String stemToken(String token) {
+        return Stemmer.getInstance().stemToken(token);
+    }
+
+    private List<String> getTermsFromVocabulary(int quantity) {
+        return this.index.getVocabulary()
+                .stream()
+                .limit(quantity)
+                .collect(Collectors.toList());
     }
 }
