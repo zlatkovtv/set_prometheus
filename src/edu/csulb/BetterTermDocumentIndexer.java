@@ -13,9 +13,7 @@ import cecs429.text.Stemmer;
 import cecs429.text.TokenStream;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class BetterTermDocumentIndexer {
@@ -64,15 +62,17 @@ public class BetterTermDocumentIndexer {
         return DirectoryCorpus.loadJsonDirectory(path);
     }
 
-    private static Index indexCorpus(DocumentCorpus corpus) {
-        AdvancedTokenProcessor processor = new AdvancedTokenProcessor();
+    private Index indexCorpus(DocumentCorpus corpus) {
+        if(corpus == null) {
+            throw new RuntimeException("Corpus does not exist");
+        }
 
         Index index = new PositionalInvertedIndex();
         for (Document d : corpus.getDocuments()) {
             TokenStream ts = new EnglishTokenStream(d.getContent());
             int position = 0;
             for (String token : ts.getTokens()) {
-                List<String> terms = processor.processToken(token);
+                List<String> terms = this.tokenProcessor.processToken(token);
                 for (String term: terms ) {
                     ((PositionalInvertedIndex) index).addTerm(term, d.getId(), position);
                 }

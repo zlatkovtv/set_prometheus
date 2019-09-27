@@ -1,6 +1,5 @@
 package cecs429.ui;
 
-import cecs429.documents.Document;
 import cecs429.documents.DocumentCorpus;
 import cecs429.ui.views.MainFrame;
 import cecs429.ui.views.TextFrame;
@@ -8,14 +7,13 @@ import edu.csulb.BetterTermDocumentIndexer;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
-import java.io.Reader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,11 +32,9 @@ public class MainFrameController {
 
     private BetterTermDocumentIndexer indexer;
     private List<Integer> lastQueryResults;
-    private DocumentCorpus corpus;
 
     public MainFrameController() {
         indexer = new BetterTermDocumentIndexer();
-
         initComponents();
         initListeners();
         chooseFolderButton.doClick();
@@ -79,23 +75,26 @@ public class MainFrameController {
                     int row = target.getSelectedRow();
 
                     try {
-                        int selectedDocId = lastQueryResults.get(row);
-                        BufferedReader documentContent = new BufferedReader(corpus.getDocument(selectedDocId).getContent());
-                        StringBuilder sb = new StringBuilder();
-                        String line = null;
-                        while ((line = documentContent.readLine()) != null) {
-                            sb.append(line);
-                        }
-
-
-                        TextFrame textFrame = new TextFrame(sb.toString());
-                        textFrame.setVisible(true);
+                        openDocumentContent(row);
                     } catch (Exception ex) {
                         return;
                     }
                 }
             }
         });
+    }
+
+    private void openDocumentContent(int index) throws IOException {
+        int selectedDocId = lastQueryResults.get(index);
+        BufferedReader documentContent = new BufferedReader(indexer.getCorpus().getDocument(selectedDocId).getContent());
+        StringBuilder sb = new StringBuilder();
+        String line = null;
+        while ((line = documentContent.readLine()) != null) {
+            sb.append(line);
+        }
+
+        TextFrame textFrame = new TextFrame(sb.toString());
+        textFrame.setVisible(true);
     }
 
     private class FolderBtnListener implements ActionListener {
@@ -175,7 +174,7 @@ public class MainFrameController {
         public void actionPerformed(ActionEvent e) {
             List<String> termsStrings = new ArrayList<String>();
             lastQueryResults = indexer.runQuery(queryInput.getText());
-            corpus = indexer.getCorpus();
+            DocumentCorpus corpus = indexer.getCorpus();
             if(lastQueryResults.size() == 0) {
                 buildTable("0 documents found for this query");
                 return;
@@ -191,27 +190,26 @@ public class MainFrameController {
     }
 
     private void buildTable(List<String> data) {
-        DefaultTableModel model = new DefaultTableModel() {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                //all cells false
-                return false;
-            }
-        };
+        DefaultTableModel model = getTableModel();
+
         model.addColumn("Document name", data.toArray());
         this.console.setModel(model);
     }
 
     private void buildTable(String data) {
-        DefaultTableModel model = new DefaultTableModel() {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                //all cells false
-                return false;
-            }
-        };
+        DefaultTableModel model = getTableModel();
+
         model.addColumn("Document name", new String[] {data});
 
         this.console.setModel(model);
+    }
+
+    private DefaultTableModel getTableModel() {
+        return new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
     }
 }
