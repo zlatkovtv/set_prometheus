@@ -19,6 +19,7 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class BetterTermDocumentIndexer {
+    private DocumentCorpus corpus;
     private Index index;
     private BooleanQueryParser queryParser;
     private AdvancedTokenProcessor tokenProcessor;
@@ -29,13 +30,17 @@ public class BetterTermDocumentIndexer {
     }
 
     public long runIndexer(Path path) {
-        DocumentCorpus corpus = loadCorpus(path);
+        corpus = loadCorpus(path);
         long startTime = System.currentTimeMillis();
         index = indexCorpus(corpus);
         long endTime = System.currentTimeMillis();
         long indexRunTime = (endTime - startTime)/1000;
 
         return indexRunTime;
+    }
+
+    public DocumentCorpus getCorpus() {
+        return this.corpus;
     }
 
     public List<Integer> runQuery(String query) {

@@ -8,6 +8,7 @@ import java.nio.file.Path;
 public class JsonFileDocument implements FileDocument {
     private int mDocumentId;
     private Path mFilePath;
+    private String mTitle;
 
     public JsonFileDocument(int id, Path absoluteFilePath) {
         mDocumentId = id;
@@ -31,7 +32,11 @@ public class JsonFileDocument implements FileDocument {
 
     @Override
     public String getTitle() {
-        return getJsonData("title");
+        if(mTitle == null) {
+            mTitle = getJsonData("title");
+        }
+
+        return mTitle;
     }
 
     private String getJsonData(String s) {

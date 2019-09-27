@@ -1,5 +1,7 @@
 package cecs429.ui;
 
+import cecs429.documents.Document;
+import cecs429.documents.DocumentCorpus;
 import cecs429.ui.views.MainFrame;
 import edu.csulb.BetterTermDocumentIndexer;
 
@@ -32,7 +34,8 @@ public class MainFrameController {
         chooseFolderButton.doClick();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         MainFrameController ctrl = new MainFrameController();
     }
 
@@ -137,13 +140,14 @@ public class MainFrameController {
         public void actionPerformed(ActionEvent e) {
             StringBuilder termsString = new StringBuilder();
             List<Integer> docIds = indexer.runQuery(queryInput.getText());
+            DocumentCorpus corpus = indexer.getCorpus();
             if(docIds.size() == 0) {
-                console.setText("No documents found for this query");
+                console.setText("0 documents found for this query");
                 return;
             }
 
             for (int i = 0; i < docIds.size(); i++) {
-                termsString.append("Document ID " + docIds.get(i).toString());
+                termsString.append("Document " + (i + 1) +": " + corpus.getDocument(docIds.get(i)).getTitle());
                 termsString.append("\n");
             }
 
