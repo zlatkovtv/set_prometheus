@@ -5,53 +5,54 @@ import cecs429.documents.Document;
 import cecs429.documents.DocumentCorpus;
 import cecs429.index.Index;
 import cecs429.index.PositionalInvertedIndex;
-import cecs429.index.Posting;
 import cecs429.query.BooleanQueryParser;
 import cecs429.query.QueryComponent;
 import cecs429.text.AdvancedTokenProcessor;
 import cecs429.text.EnglishTokenStream;
 import cecs429.text.Stemmer;
 import cecs429.text.TokenStream;
-import cecs429.ui.MainFrameController;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class BetterTermDocumentIndexer {
-    private static Scanner reader = new Scanner(System.in);
     private Index index;
+    private BooleanQueryParser queryParser;
+    private AdvancedTokenProcessor tokenProcessor;
 
-    public void run(Path path) {
+    public BetterTermDocumentIndexer() {
+        queryParser = new BooleanQueryParser();
+        tokenProcessor = new AdvancedTokenProcessor();
+    }
+
+    public long runIndexer(Path path) {
         DocumentCorpus corpus = loadCorpus(path);
-
         long startTime = System.currentTimeMillis();
         index = indexCorpus(corpus);
         long endTime = System.currentTimeMillis();
+        long indexRunTime = (endTime - startTime)/1000;
 
-        System.out.println("That took " + (endTime - startTime)/1000.0 + " Seconds");
+        return indexRunTime;
+    }
 
-        String input;
-        while (true) {
-            System.out.printf("Enter search term or quit to exit. ");
-            input = reader.nextLine().toLowerCase();
-            switch (input) {
-                case "quit":
-                    System.exit(0);
-                    break;
-
-                default:
-                    BooleanQueryParser bqp = new BooleanQueryParser();
-                    QueryComponent qc = bqp.parseQuery(input);
-                    AdvancedTokenProcessor pr = new AdvancedTokenProcessor();
-                    for (Posting p : qc.getPostings(this.index, pr)) {
-                        System.out.println("Document ID " + p.getDocumentId());
-                    }
-                    break;
-            }
+    public List<Integer> runQuery(String query) {
+        if(index == null) {
+            throw new RuntimeException("Index has not been built yet.");
         }
+
+        QueryComponent qc = queryParser.parseQuery(query);
+        return qc.getPostings(this.index, tokenProcessor).stream().map(x -> x.getDocumentId()).collect(Collectors.toList());
+    }
+
+    public String stemToken(String token) {
+        return Stemmer.getInstance().stemToken(token);
+    }
+
+    public List<String> getVocabulary() {
+        return this.index.getVocabulary();
     }
 
     private DocumentCorpus loadCorpus(Path path) {
@@ -76,16 +77,5 @@ public class BetterTermDocumentIndexer {
         }
 
         return index;
-    }
-
-    private String stemToken(String token) {
-        return Stemmer.getInstance().stemToken(token);
-    }
-
-    private List<String> getTermsFromVocabulary(int quantity) {
-        return this.index.getVocabulary()
-                .stream()
-                .limit(quantity)
-                .collect(Collectors.toList());
     }
 }
