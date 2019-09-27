@@ -8,7 +8,7 @@ public class MainFrame extends JFrame {
     private JButton stemTokenButton;
     private JButton printVocabButton;
     private JButton quitButton;
-    private JTextArea console;
+    private JTable console;
     private JTextField queryInput;
     private JButton queryButton;
     private JLabel indexTimer;
@@ -17,7 +17,7 @@ public class MainFrame extends JFrame {
         return indexTimer;
     }
 
-    public JTextArea getConsole() {
+    public JTable getConsole() {
         return console;
     }
 

@@ -3,12 +3,20 @@ package cecs429.ui;
 import cecs429.documents.Document;
 import cecs429.documents.DocumentCorpus;
 import cecs429.ui.views.MainFrame;
+import cecs429.ui.views.TextFrame;
 import edu.csulb.BetterTermDocumentIndexer;
 
 import javax.swing.*;
-import java.awt.Component;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
+import java.io.Reader;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainFrameController {
@@ -19,12 +27,14 @@ public class MainFrameController {
     private JButton stemTokenButton;
     private JButton printVocabButton;
     private JButton quitButton;
-    private JTextArea console;
+    private JTable console;
     private JTextField queryInput;
     private JButton queryButton;
     private JLabel indexTimer;
 
     private BetterTermDocumentIndexer indexer;
+    private List<Integer> lastQueryResults;
+    private DocumentCorpus corpus;
 
     public MainFrameController() {
         indexer = new BetterTermDocumentIndexer();
@@ -49,6 +59,7 @@ public class MainFrameController {
         printVocabButton = mainFrame.getPrintVocabButton();
         quitButton = mainFrame.getQuitButton();
         console = mainFrame.getConsole();
+        console.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         queryInput = mainFrame.getQueryInput();
         queryButton = mainFrame.getQueryButton();
         indexTimer = mainFrame.getIndexTimer();
@@ -61,6 +72,30 @@ public class MainFrameController {
         printVocabButton.addActionListener(new VocabBtnListener());
         quitButton.addActionListener(new QuitBtnListener());
         queryButton.addActionListener(new QueryBtnListener());
+        console.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    JTable target = (JTable) e.getSource();
+                    int row = target.getSelectedRow();
+
+                    try {
+                        int selectedDocId = lastQueryResults.get(row);
+                        BufferedReader documentContent = new BufferedReader(corpus.getDocument(selectedDocId).getContent());
+                        StringBuilder sb = new StringBuilder();
+                        String line = null;
+                        while ((line = documentContent.readLine()) != null) {
+                            sb.append(line);
+                        }
+
+
+                        TextFrame textFrame = new TextFrame(sb.toString());
+                        textFrame.setVisible(true);
+                    } catch (Exception ex) {
+                        return;
+                    }
+                }
+            }
+        });
     }
 
     private class FolderBtnListener implements ActionListener {
@@ -101,30 +136,30 @@ public class MainFrameController {
     private class StemBtnListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
+            List<String> strings = new ArrayList<>();
             String token = JOptionPane.showInputDialog("Enter a token to be stemmed");
             if(token == null) {
                 return;
             }
 
             String stem = indexer.stemToken(token);
-            String text = "Original token: " + token;
-            text += "\nStem: " + stem;
-            console.setText(text);
+            strings.add("Original token: " + token);
+            strings.add("Stem: " + stem);
+            buildTable(strings);
         }
     }
 
     private class VocabBtnListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            StringBuilder termsString = new StringBuilder();
+            List<String> termsStrings = new ArrayList<String>();
             List<String> terms = indexer.getVocabulary();
             for (int i = 0; i < VOCABULARY_LIMIT; i++) {
-                termsString.append(terms.get(i));
-                termsString.append("\n");
+                termsStrings.add(terms.get(i));
             }
 
-            termsString.append("Total number of terms: " + terms.size());
-            console.setText(termsString.toString());
+            termsStrings.add("Total number of terms: " + terms.size());
+            buildTable(termsStrings);
         }
     }
 
@@ -138,22 +173,45 @@ public class MainFrameController {
     private class QueryBtnListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            StringBuilder termsString = new StringBuilder();
-            List<Integer> docIds = indexer.runQuery(queryInput.getText());
-            DocumentCorpus corpus = indexer.getCorpus();
-            if(docIds.size() == 0) {
-                console.setText("0 documents found for this query");
+            List<String> termsStrings = new ArrayList<String>();
+            lastQueryResults = indexer.runQuery(queryInput.getText());
+            corpus = indexer.getCorpus();
+            if(lastQueryResults.size() == 0) {
+                buildTable("0 documents found for this query");
                 return;
             }
 
-            for (int i = 0; i < docIds.size(); i++) {
-                termsString.append("Document " + (i + 1) +": " + corpus.getDocument(docIds.get(i)).getTitle());
-                termsString.append("\n");
+            for (int i = 0; i < lastQueryResults.size(); i++) {
+                termsStrings.add("Document " + (i + 1) +": " + corpus.getDocument(lastQueryResults.get(i)).getTitle());
             }
 
-            termsString.append("Total number of documents: " + docIds.size());
-
-            console.setText(termsString.toString());
+            termsStrings.add("Total number of documents: " + lastQueryResults.size());
+            buildTable(termsStrings);
         }
+    }
+
+    private void buildTable(List<String> data) {
+        DefaultTableModel model = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                //all cells false
+                return false;
+            }
+        };
+        model.addColumn("Document name", data.toArray());
+        this.console.setModel(model);
+    }
+
+    private void buildTable(String data) {
+        DefaultTableModel model = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                //all cells false
+                return false;
+            }
+        };
+        model.addColumn("Document name", new String[] {data});
+
+        this.console.setModel(model);
     }
 }

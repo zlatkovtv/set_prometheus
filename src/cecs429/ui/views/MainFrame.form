@@ -83,7 +83,7 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="c7b16" class="javax.swing.JTextArea" binding="console">
+          <component id="c7b16" class="javax.swing.JTable" binding="console">
             <constraints/>
             <properties/>
           </component>
