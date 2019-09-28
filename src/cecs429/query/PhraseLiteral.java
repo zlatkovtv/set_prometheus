@@ -11,100 +11,101 @@ import java.util.stream.Collectors;
  * Represents a phrase literal consisting of one or more terms that must occur in sequence.
  */
 public class PhraseLiteral implements QueryComponent {
-	// The list of individual terms in the phrase.
-	private List<String> mTerms = new ArrayList<>();
-	
-	/**
-	 * Constructs a PhraseLiteral with the given individual phrase terms.
-	 */
-	public PhraseLiteral(List<String> terms) {
-		mTerms.addAll(terms);
-	}
-	
-	/**
-	 * Constructs a PhraseLiteral given a string with one or more individual terms separated by spaces.
-	 */
-	public PhraseLiteral(String terms) {
-		mTerms.addAll(Arrays.asList(terms.split(" ")));
-	}
-	
-	@Override
-	public List<Posting> getPostings(Index index, TokenProcessor processor) {
-		// normalize tokens
-		List<String> normalizedTokens = new ArrayList<>(mTerms.stream().map(t -> processor.processQueryToken(t)).collect(Collectors.toList()));
-		Iterator<String> terms = normalizedTokens.iterator();
-		//no terms detected
-		if(!terms.hasNext()) {
-			return new ArrayList<>();
-		}
+    // The list of individual terms in the phrase.
+    private List<String> mTerms = new ArrayList<>();
 
-		List<Posting> firstTermPostings = index.getPostings(terms.next()); // 0, 1, 3
-		Map<Integer, List<Integer>> results = new TreeMap<>();
+    /**
+     * Constructs a PhraseLiteral with the given individual phrase terms.
+     */
+    public PhraseLiteral(List<String> terms) {
+        mTerms.addAll(terms);
+    }
 
-		for (int i = 0; i < firstTermPostings.size(); i++) {
-			Posting p = firstTermPostings.get(i);
-			results.put(p.getDocumentId(), p.getPositions());
-		}
+    /**
+     * Constructs a PhraseLiteral given a string with one or more individual terms separated by spaces.
+     */
+    public PhraseLiteral(String terms) {
+        mTerms.addAll(Arrays.asList(terms.split(" ")));
+    }
 
-		Iterator<Map.Entry<Integer, List<Integer>>> mapIterator = new TreeMap<>(results).entrySet().iterator();
-		while(mapIterator.hasNext()) {
-			Map.Entry<Integer, List<Integer>> entry = mapIterator.next();
-			Integer currentDocumentId = entry.getKey();
-			List<Integer> currentPositions = entry.getValue();
+    @Override
+    public List<Posting> getPostings(Index index, TokenProcessor processor) {
+        // normalize tokens
+        List<String> normalizedTokens = new ArrayList<>(mTerms.stream().map(t -> processor.processQueryToken(t)).collect(Collectors.toList()));
+        Iterator<String> terms = normalizedTokens.iterator();
 
-			//restart iterator and start at index 1
-			terms = normalizedTokens.iterator();
-			terms.next();
+        List<Posting> result = index.getPostings(terms.next()); // 0, 1, 3
 
-			while (terms.hasNext()) {
-				List<Posting> nextPostingList = index.getPostings(terms.next());
-				Posting posting = nextPostingList.stream()
-						.filter(p -> p.getDocumentId() == currentDocumentId)
-						.findFirst()
-						.orElse(null);
+        while (terms.hasNext()) {
+            result = postionalIntersect(result, index.getPostings(terms.next()), 1);
+        }
 
-				if(posting == null) {
-					results.remove(currentDocumentId);
-					break;
-				}
+        return result;
+    }
 
-				List<Integer> mergedPositions = new ArrayList<>();
+    /*
+    - Author(s) name (Individual or corporation): anwar
+    - 9/28/2019
+    - PHRASE QUERIES AND POSITIONAL INDEXES
+    - Code version -N/A
+    - Slides
+    - https://web.cs.dal.ca/~anwar/ir/lecturenotes/l9.pdf
+    */
 
-				for (int i = 0; i < currentPositions.size(); i++){
-					for (Integer nextPostingPosition: posting.getPositions()) {
-						if(((currentPositions.get(i) + 1) == nextPostingPosition)) {
-							mergedPositions.add(currentPositions.get(i));
-							mergedPositions.add(currentPositions.get(i) + 1);
-						}
-					}
-				}
+    public List<Posting> postionalIntersect(List<Posting> p1, List<Posting> p2, int k) {
+        List<Posting> answer = new ArrayList<>();
+        int itr = 0;
+        int jtr = 0;
 
-				// no adjacent positions for term
-				if(mergedPositions.size() == 0) {
-					results.remove(currentDocumentId);
-					break;
-				}
+        while (itr < p1.size() && jtr < p2.size()) {
+            if (p1.get(itr).getDocumentId() == p2.get(jtr).getDocumentId()) {
+                List<Integer> l = new ArrayList<>();
+                List<Integer> pp1 = p1.get(itr).getPositions();
+                List<Integer> pp2 = p2.get(jtr).getPositions();
+                int ip = 0;
+                int jp = 0;
+                while (ip < pp1.size()) {
+                    while (jp < pp2.size()) {
+                        if ((pp2.get(jp) - pp1.get(ip)) <= k) {
+                            l.add(pp2.get(jp));
 
-				results.put(currentDocumentId, mergedPositions);
-			}
-		}
+                        } else if (pp2.get(jp) > pp1.get(ip)) {
+                            break;
+                        }
+                        ++jp;
 
-		return buildIntoPostinsList(results);
-	}
+                    }
 
-	private List<Posting> buildIntoPostinsList(Map<Integer, List<Integer>> results) {
-		List<Posting> postings = new ArrayList<>();
-		for (Map.Entry<Integer, List<Integer>> entry: results.entrySet()) {
-			List<Integer> positions = entry.getValue();
-			Collections.sort(positions);
-			postings.add(new Posting(entry.getKey(), positions));
-		}
+                    while (l.size() > 0 && (pp1.get(ip) - l.get(0)) >= k) {
+                        l.remove(0);
+                    }
+                    for (Integer ps : l) {
+                        ArrayList<Integer> tmp2 = new ArrayList<>();
+                        tmp2.add(pp1.get(ip));
+                        tmp2.add(ps);
+                        Posting p = new Posting(p1.get(itr).getDocumentId(), tmp2);
 
-		return postings;
-	}
+                        answer.add(p);
 
-	@Override
-	public String toString() {
-		return "\"" + String.join(" ", mTerms) + "\"";
-	}
+                    }
+                    ++ip;
+
+                }
+                ++itr;
+                ++jtr;
+            } else if (p1.get(itr).getDocumentId() < p2.get(jtr).getDocumentId()) {
+                ++itr;
+            } else {
+                ++jtr;
+            }
+        }
+
+        return answer;
+    }
+
+
+    @Override
+    public String toString() {
+        return "\"" + String.join(" ", mTerms) + "\"";
+    }
 }

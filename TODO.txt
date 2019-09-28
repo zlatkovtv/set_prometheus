@@ -1,5 +1,10 @@
 FIXED: Only store stemmed words for proccessToken and processQueryToken
 FIXED: Reading from json is broken, fix
-Change And and Or query to old fashioned methods
+FIXED: Change And and Or query to old fashioned methods
 Change positionalmerge to one like the book. Dont use treemap, use list of lists.
-UI
+Milestone 1 Options:
+1. FIXED: UI
+2. Wildcard queries
+3.
+
+
