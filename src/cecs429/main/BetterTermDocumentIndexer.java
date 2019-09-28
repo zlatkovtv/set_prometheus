@@ -1,4 +1,4 @@
-package edu.csulb;
+package cecs429.main;
 
 import cecs429.documents.DirectoryCorpus;
 import cecs429.documents.Document;

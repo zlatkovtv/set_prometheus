@@ -3,7 +3,7 @@ package cecs429.ui;
 import cecs429.documents.DocumentCorpus;
 import cecs429.ui.views.MainFrame;
 import cecs429.ui.views.TextFrame;
-import edu.csulb.BetterTermDocumentIndexer;
+import cecs429.main.BetterTermDocumentIndexer;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -33,16 +33,11 @@ public class MainFrameController {
     private BetterTermDocumentIndexer indexer;
     private List<Integer> lastQueryResults;
 
-    public MainFrameController() {
-        indexer = new BetterTermDocumentIndexer();
+    public MainFrameController(BetterTermDocumentIndexer indexer) {
+        this.indexer = indexer;
         initComponents();
         initListeners();
         chooseFolderButton.doClick();
-    }
-
-    public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
-        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        MainFrameController ctrl = new MainFrameController();
     }
 
     private void initComponents() {
