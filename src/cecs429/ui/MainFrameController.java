@@ -168,6 +168,11 @@ public class MainFrameController {
         @Override
         public void actionPerformed(ActionEvent e) {
             List<String> termsStrings = new ArrayList<String>();
+            if(queryInput.getText().isEmpty()) {
+                buildTable("Please enter a valid query");
+                return;
+
+            }
             lastQueryResults = indexer.runQuery(queryInput.getText());
             DocumentCorpus corpus = indexer.getCorpus();
             if(lastQueryResults.size() == 0) {
