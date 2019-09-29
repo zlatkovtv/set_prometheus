@@ -4,7 +4,8 @@ FIXED: Change And and Or query to old fashioned methods
 FIXED Change positionalmerge to one like the book. Dont use treemap, use list of lists.
 Milestone 1 Options:
 1. FIXED: UI
-2. Wildcard queries
+2. FIXED: Wildcard queries
+    2.1. Figure out * or +
 3. NEAR
 
 

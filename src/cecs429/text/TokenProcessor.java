@@ -10,6 +10,6 @@ public interface TokenProcessor {
 	 * Normalizes a token into a term.
 	 */
 	List<String> processToken(String token);
-
 	String processQueryToken(String token);
+	String normalizeToken(String token);
 }

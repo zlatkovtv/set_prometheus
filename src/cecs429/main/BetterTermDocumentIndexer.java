@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class BetterTermDocumentIndexer {
     private DocumentCorpus corpus;
     private Index index;
-    private static Index kGramIndex;
+    private static KGramIndex kGramIndex;
     private BooleanQueryParser queryParser;
     private AdvancedTokenProcessor tokenProcessor;
 
@@ -60,7 +60,7 @@ public class BetterTermDocumentIndexer {
         return this.index.getVocabulary();
     }
 
-    public static Index getKGramIndex() {
+    public static KGramIndex getKGramIndex() {
         return kGramIndex;
     }
 
@@ -82,7 +82,7 @@ public class BetterTermDocumentIndexer {
                 List<String> terms = this.tokenProcessor.processToken(token);
                 for (String term: terms ) {
                     ((PositionalInvertedIndex) index).addTerm(term, d.getId(), position);
-                    ((KGramIndex) kGramIndex).addTerm(term, d.getId());
+                    (kGramIndex).addTerm(term, d.getId());
                 }
 
                 position++;

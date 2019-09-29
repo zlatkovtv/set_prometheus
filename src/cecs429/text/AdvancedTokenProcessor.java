@@ -34,7 +34,7 @@ public class AdvancedTokenProcessor implements TokenProcessor {
         return stemmer.stemToken(normalizeToken(token));
     }
 
-    private String normalizeToken(String token) {
+    public String normalizeToken(String token) {
         String processString = removeAlphaNum(token);
         processString = removeApost(processString);
         return toLowerCase(processString);

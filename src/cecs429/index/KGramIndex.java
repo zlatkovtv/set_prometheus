@@ -12,40 +12,42 @@ import java.util.*;
  *
  * @author zack-laptop
  */
-public class KGramIndex implements Index {
-
-    private HashMap<String, List<Posting>> mapping = new HashMap<>();
+public class KGramIndex {
+    private HashMap<String, List<String>> mapping = new HashMap<>();
 
     public void addTerm(String term, int documentId){
         List<String> kGrams = new ArrayList<>();
         StringBuilder sb = new StringBuilder(term);
         sb.insert(0, '$');
         sb.append('$');
-        term = sb.toString();
-        Iterator i = new KGramIterator(1, term);
+        String processedTerm = sb.toString();
+        Iterator i = new KGramIterator(1, processedTerm);
         while(i.hasNext()) {
             kGrams.add(i.next().toString());
         }
 
-        i = new KGramIterator(2, term);
+        i = new KGramIterator(2, processedTerm);
         while(i.hasNext()) {
             kGrams.add(i.next().toString());
         }
 
-        i = new KGramIterator(3, term);
+        i = new KGramIterator(3, processedTerm);
         while(i.hasNext()) {
             kGrams.add(i.next().toString());
         }
 
         // not adding duplicate grams or terms.
         for (String gram: kGrams) {
-            List<Posting> results = mapping.getOrDefault(gram, Collections.emptyList());
+            List<String> candidates = mapping.getOrDefault(gram, Collections.emptyList());
 
-            if (results.isEmpty()) {
-                List<Posting> list = new ArrayList<>();
-                Posting p = new Posting(documentId);
-                list.add(p);
+            if (candidates.isEmpty()) {
+                List<String> list = new ArrayList<>();
+                list.add(term);
                 mapping.put(gram, list);
+            } else {
+                if (!candidates.get(candidates.size() - 1).equals(term)) {
+                    candidates.add(term);
+                }
             }
         }
     }
@@ -68,19 +70,7 @@ public class KGramIndex implements Index {
 //        }
 //    }
     
-    @Override
-    public List<Posting> getPostings(String term) {
+    public List<String> getCandidates(String term) {
         return mapping.getOrDefault(term, Collections.emptyList());
-    }
-    
-    @Override
-    public List<String> getVocabulary() {
-        List<String> mVocabulary = new ArrayList<>();
-        
-        for (String term : mapping.keySet()) {
-            mVocabulary.add(term);
-        }
-        Collections.sort(mVocabulary);
-        return Collections.unmodifiableList(mVocabulary);
     }
 }

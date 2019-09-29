@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class ConsoleMain {
-    private static final String path = "C:\\Users\\Memphis\\Desktop\\Projects\\SET\\Homework3\\assets\\partial";
+    private static final String path = "C:\\Users\\Memphis\\Desktop\\Projects\\SET\\Homework3\\assets\\split";
     private static Scanner reader = new Scanner(System.in);
 
     public static void main(String[] args) {
@@ -25,6 +25,7 @@ public class ConsoleMain {
                         System.out.println("Document ID " + docId);
                     }
 
+                    System.out.println("Total: " + results.size());
                     break;
             }
         }
