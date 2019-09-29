@@ -4,6 +4,7 @@ import cecs429.documents.DirectoryCorpus;
 import cecs429.documents.Document;
 import cecs429.documents.DocumentCorpus;
 import cecs429.index.Index;
+import cecs429.index.KGramIndex;
 import cecs429.index.PositionalInvertedIndex;
 import cecs429.query.BooleanQueryParser;
 import cecs429.query.QueryComponent;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 public class BetterTermDocumentIndexer {
     private DocumentCorpus corpus;
     private Index index;
+    private static Index kGramIndex;
     private BooleanQueryParser queryParser;
     private AdvancedTokenProcessor tokenProcessor;
 
@@ -58,6 +60,10 @@ public class BetterTermDocumentIndexer {
         return this.index.getVocabulary();
     }
 
+    public static Index getKGramIndex() {
+        return kGramIndex;
+    }
+
     private DocumentCorpus loadCorpus(Path path) {
         return DirectoryCorpus.loadJsonDirectory(path);
     }
@@ -68,6 +74,7 @@ public class BetterTermDocumentIndexer {
         }
 
         Index index = new PositionalInvertedIndex();
+        kGramIndex = new KGramIndex();
         for (Document d : corpus.getDocuments()) {
             TokenStream ts = new EnglishTokenStream(d.getContent());
             int position = 0;
@@ -75,6 +82,7 @@ public class BetterTermDocumentIndexer {
                 List<String> terms = this.tokenProcessor.processToken(token);
                 for (String term: terms ) {
                     ((PositionalInvertedIndex) index).addTerm(term, d.getId(), position);
+                    ((KGramIndex) kGramIndex).addTerm(term, d.getId());
                 }
 
                 position++;
