@@ -166,7 +166,14 @@ public class BooleanQueryParser {
                             new StringBounds(startIndex, lengthOut + 1),
                             new PhraseLiteral(subquery.substring(startIndex, startIndex + lengthOut)));
                 }
+            case '[':
+                ++startIndex;
+                int nextBracket = subquery.indexOf(']', startIndex);
+                lengthOut = nextBracket - startIndex;
 
+                return new Literal(
+                        new StringBounds(startIndex, lengthOut + 1),
+                        new NearLiteral(subquery.substring(startIndex, startIndex + lengthOut)));
             default:
                 if (nextSpace < 0) {
                     // No more literals in this subquery.
@@ -184,8 +191,6 @@ public class BooleanQueryParser {
                 return new Literal(
                         new StringBounds(startIndex, lengthOut),
                         new TermLiteral(subString));
-
-
         }
 
 		/*

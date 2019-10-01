@@ -24,15 +24,6 @@ public class WildcardLiteral implements QueryComponent {
         this.originalWord = term;
 
     }
-//
-//    private void findKgram() {
-//        for(int i = 0; i < parts.size(); i++) {
-//            for (int j = (i + MIN_GRAM); i < Math.min(parts.size(), (i + MAX_GRAM) + 1); j++) {
-//                System.out.println(i);
-//                System.out.println(j);
-//            }
-//        }
-//    }
 
     @Override
     public List<Posting> getPostings(Index index, TokenProcessor tokenProcessor) {
@@ -40,6 +31,7 @@ public class WildcardLiteral implements QueryComponent {
         StringBuilder sb = new StringBuilder(originalWord);
         sb.insert(0, '$');
         sb.append('$');
+
         String term = sb.toString();
         List<String> parts = Arrays.asList(term.split("\\*"));
 
@@ -57,12 +49,7 @@ public class WildcardLiteral implements QueryComponent {
                 }
             }
         }
-        Iterator iterator;
-        for (String part: parts) {
 
-        }
-
-        // TODO Star gives extra results, + gives same as neils'. Figure out which one
         String regexPattern = originalWord.replace("*", ".*");
         KGramIndex kGramIndex = BetterTermDocumentIndexer.getKGramIndex();
         List<String> candidates = new ArrayList<>();
