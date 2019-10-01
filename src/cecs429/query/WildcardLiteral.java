@@ -42,21 +42,24 @@ public class WildcardLiteral implements QueryComponent {
         sb.append('$');
         String term = sb.toString();
         List<String> parts = Arrays.asList(term.split("\\*"));
-        int kgramSize = MAX_GRAM;
+
         for (String part: parts) {
-            if((part.length() < kgramSize) && part.length() <= 3) {
+            int kgramSize = MAX_GRAM;
+            if((part.length() < kgramSize)) {
                 kgramSize = part.length();
             }
-        }
-        Iterator iterator;
-        for (String part: parts) {
-            iterator = new KGramIterator(kgramSize, part);
+
+            Iterator iterator = new KGramIterator(kgramSize, part);
             while(iterator.hasNext()) {
                 String nextGram = iterator.next().toString();
                 if(!kGrams.contains(nextGram)) {
                     kGrams.add(nextGram);
                 }
             }
+        }
+        Iterator iterator;
+        for (String part: parts) {
+
         }
 
         // TODO Star gives extra results, + gives same as neils'. Figure out which one
