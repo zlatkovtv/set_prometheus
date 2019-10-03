@@ -21,6 +21,6 @@ public class TextFrame extends JFrame
             }
         });
 
-        setSize(500, 500);
+        setSize(600, 600);
     }
 }

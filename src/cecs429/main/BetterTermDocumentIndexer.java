@@ -84,6 +84,10 @@ public class BetterTermDocumentIndexer {
             for (String token : ts.getTokens()) {
                 List<String> terms = this.tokenProcessor.processToken(token);
                 for (String term : terms) {
+                    if(term.isEmpty()) {
+                        continue;
+                    }
+
                     ((PositionalInvertedIndex) index).addTerm(term, d.getId(), position);
                     (kGramIndex).addTerm(term, d.getId());
                 }

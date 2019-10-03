@@ -12,6 +12,7 @@ public class MainFrame extends JFrame {
     private JTextField queryInput;
     private JButton queryButton;
     private JLabel indexTimer;
+    private JScrollPane scrollPane;
 
     public JLabel getIndexTimer() {
         return indexTimer;
@@ -45,8 +46,12 @@ public class MainFrame extends JFrame {
         return quitButton;
     }
 
+    public JScrollPane getScrollPane() {
+        return scrollPane;
+    }
+
     public MainFrame() {
-        setSize(600, 400);
+        setSize(800, 650);
         setContentPane(mainWindow);
         setLocationRelativeTo(null);
     }

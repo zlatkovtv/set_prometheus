@@ -28,6 +28,7 @@ public class MainFrameController {
     private JTable console;
     private JTextField queryInput;
     private JButton queryButton;
+    private JScrollPane scrollPane;
     private JLabel indexTimer;
 
     private BetterTermDocumentIndexer indexer;
@@ -53,6 +54,7 @@ public class MainFrameController {
         console.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         queryInput = mainFrame.getQueryInput();
         queryButton = mainFrame.getQueryButton();
+        scrollPane = mainFrame.getScrollPane();
         indexTimer = mainFrame.getIndexTimer();
         setButtonsEnabled(false);
     }
@@ -191,17 +193,16 @@ public class MainFrameController {
 
     private void buildTable(List<String> data) {
         DefaultTableModel model = getTableModel();
-
-        model.addColumn("Document name", data.toArray());
+        model.addColumn("Results", data.toArray());
         this.console.setModel(model);
+        scrollToBottom();
     }
 
     private void buildTable(String data) {
         DefaultTableModel model = getTableModel();
-
-        model.addColumn("Document name", new String[]{data});
-
+        model.addColumn("Results", new String[]{data});
         this.console.setModel(model);
+        scrollToBottom();
     }
 
     private DefaultTableModel getTableModel() {
@@ -211,5 +212,11 @@ public class MainFrameController {
                 return false;
             }
         };
+    }
+
+    private void scrollToBottom() {
+        JScrollBar vertical = scrollPane.getVerticalScrollBar();
+        scrollPane.validate();
+        vertical.setValue( vertical.getMaximum() );
     }
 }
