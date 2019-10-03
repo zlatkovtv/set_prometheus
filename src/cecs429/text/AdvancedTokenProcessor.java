@@ -30,8 +30,14 @@ public class AdvancedTokenProcessor implements TokenProcessor {
         return stemmedTokens;
     }
 
-    public String processQueryToken(String token) {
-        return stemmer.stemToken(normalizeToken(token));
+    public String processQueryToken(String token)
+    {
+        if(token.charAt(token.length()-1) == '*' || token.charAt(0) == '*') {
+            return toLowerCase(removeApost(token));
+        } else {
+            return stemmer.stemToken(normalizeToken(token));
+        }
+
     }
 
     public String normalizeToken(String token) {

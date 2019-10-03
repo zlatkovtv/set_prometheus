@@ -27,6 +27,7 @@ public class WildcardLiteral implements QueryComponent {
 
     @Override
     public List<Posting> getPostings(Index index, TokenProcessor tokenProcessor) {
+
         originalWord = tokenProcessor.processQueryToken(originalWord);
         StringBuilder sb = new StringBuilder(originalWord);
         sb.insert(0, '$');
