@@ -11,9 +11,11 @@ public class KGramIterator implements Iterator<String> {
         this.n = n;
         this.str = str;
     }
+
     public boolean hasNext() {
         return pos < str.length() - n + 1;
     }
+
     public String next() {
         return str.substring(pos, pos++ + n);
     }

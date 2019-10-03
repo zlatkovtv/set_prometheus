@@ -106,7 +106,7 @@ public class MainFrameController {
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         chooser.setAcceptAllFileFilterUsed(false);
         int result = chooser.showOpenDialog((Component) e.getSource());
-        if(result != JFileChooser.APPROVE_OPTION) {
+        if (result != JFileChooser.APPROVE_OPTION) {
             return;
         }
 
@@ -132,7 +132,7 @@ public class MainFrameController {
         public void actionPerformed(ActionEvent e) {
             List<String> strings = new ArrayList<>();
             String token = JOptionPane.showInputDialog("Enter a token to be stemmed");
-            if(token == null) {
+            if (token == null) {
                 return;
             }
 
@@ -168,20 +168,20 @@ public class MainFrameController {
         @Override
         public void actionPerformed(ActionEvent e) {
             List<String> termsStrings = new ArrayList<String>();
-            if(queryInput.getText().isEmpty()) {
+            if (queryInput.getText().isEmpty()) {
                 buildTable("Please enter a valid query");
                 return;
 
             }
             lastQueryResults = indexer.runQuery(queryInput.getText());
             DocumentCorpus corpus = indexer.getCorpus();
-            if(lastQueryResults.size() == 0) {
+            if (lastQueryResults.size() == 0) {
                 buildTable("0 documents found for this query");
                 return;
             }
 
             for (int i = 0; i < lastQueryResults.size(); i++) {
-                termsStrings.add("Document " + (i + 1) +": " + corpus.getDocument(lastQueryResults.get(i)).getTitle());
+                termsStrings.add("Document " + (i + 1) + ": " + corpus.getDocument(lastQueryResults.get(i)).getTitle());
             }
 
             termsStrings.add("Total number of documents: " + lastQueryResults.size());
@@ -199,7 +199,7 @@ public class MainFrameController {
     private void buildTable(String data) {
         DefaultTableModel model = getTableModel();
 
-        model.addColumn("Document name", new String[] {data});
+        model.addColumn("Document name", new String[]{data});
 
         this.console.setModel(model);
     }

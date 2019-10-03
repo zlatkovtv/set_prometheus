@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 public class PhraseLiteral implements QueryComponent {
     // The list of individual terms in the phrase.
     private List<String> mTerms = new ArrayList<>();
+    public final int K_VALUE = 1;
 
     /**
      * Constructs a PhraseLiteral with the given individual phrase terms.
@@ -38,7 +39,7 @@ public class PhraseLiteral implements QueryComponent {
         List<Posting> result = index.getPostings(terms.next()); // 0, 1, 3
 
         while (terms.hasNext()) {
-            result = MergeOperations.postionalIntersect(result, index.getPostings(terms.next()), 1);
+            result = MergeOperations.postionalIntersect(result, index.getPostings(terms.next()), K_VALUE);
         }
 
         return result;

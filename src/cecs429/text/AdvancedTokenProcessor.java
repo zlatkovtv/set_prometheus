@@ -23,8 +23,8 @@ public class AdvancedTokenProcessor implements TokenProcessor {
         String processedToken = normalizeToken(token);
         processedTokens = hyphenate(processedToken);
 
-        for (String pt: processedTokens) {
-            stemmedTokens.add(stemmer.stemToken(pt));
+        for (String processToken : processedTokens) {
+            stemmedTokens.add(stemmer.stemToken(processToken));
         }
 
         return stemmedTokens;
@@ -58,22 +58,22 @@ public class AdvancedTokenProcessor implements TokenProcessor {
         return sb.toString();
     }
 
-    private String removeApost(String s) {
-        s = s.replaceAll("'", "");
-        s = s.replaceAll("\"", "");
-        return s;
+    private String removeApost(String string) {
+        string = string.replaceAll("'", "");
+        string = string.replaceAll("\"", "");
+        return string;
     }
 
-    private String toLowerCase(String s) {
-        s = s.toLowerCase();
-        return s;
+    private String toLowerCase(String string) {
+        string = string.toLowerCase();
+        return string;
     }
 
-    private List<String> hyphenate(String s) {
+    private List<String> hyphenate(String string) {
         ArrayList<String> sb = new ArrayList<>();
-        sb.add(s.replaceAll("-", ""));
-        if(sb.indexOf('-') > 0) {
-            sb.addAll(Arrays.asList(s.split("-")));
+        sb.add(string.replaceAll("-", ""));
+        if (sb.indexOf('-') > 0) {
+            sb.addAll(Arrays.asList(string.split("-")));
         }
 
         return sb;

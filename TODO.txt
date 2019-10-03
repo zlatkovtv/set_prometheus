@@ -6,7 +6,7 @@ Milestone 1 Options:
 1. FIXED: UI
 2. FIXED: Wildcard queries
     2.1. FIXED: Figure out * or +
-3. NEAR
+3. FIXED: NEAR
 
 
 

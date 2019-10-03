@@ -4,8 +4,12 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Scanner;
 
+/*
+Please use UIMain as this is just for quickly running and debugging
+ */
+
 public class ConsoleMain {
-    private static final String path = "C:\\Users\\Memphis\\Desktop\\Projects\\SET\\Homework3\\assets\\split";
+    private static final String path = "C:\\Users\\zack-laptop\\Desktop\\json";
     private static Scanner reader = new Scanner(System.in);
 
     public static void main(String[] args) {

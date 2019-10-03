@@ -4,9 +4,7 @@ import cecs429.index.Index;
 import cecs429.index.Posting;
 import cecs429.text.TokenProcessor;
 import cecs429.util.MergeOperations;
-
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,38 +12,31 @@ import java.util.stream.Collectors;
  * An AndQuery composes other QueryComponents and merges their postings in an intersection-like operation.
  */
 public class AndQuery implements QueryComponent {
-	private List<QueryComponent> mComponents;
+    private List<QueryComponent> mComponents;
 
-	public AndQuery(List<QueryComponent> components) {
-		mComponents = components;
-	}
+    public AndQuery(List<QueryComponent> components) {
+        mComponents = components;
+    }
 
-	@Override
-	public List<Posting> getPostings(Index index, TokenProcessor processor) {
-		//Iterator<QueryComponent> iterator = mComponents.iterator();
+    @Override
+    public List<Posting> getPostings(Index index, TokenProcessor processor) {
 
-		List<Posting> result = new ArrayList<>();
+        List<Posting> result = new ArrayList<>();
 
-		result.addAll(mComponents.get(0).getPostings(index, processor));
+        result.addAll(mComponents.get(0).getPostings(index, processor));
 
-		for (int i = 1; i < mComponents.size(); i++) {
-			result = MergeOperations.intersectMerge(result, mComponents.get(i).getPostings(index, processor));
-		}
+        for (int i = 1; i < mComponents.size(); i++) {
+            result = MergeOperations.intersectMerge(result, mComponents.get(i).getPostings(index, processor));
+        }
 
-//        for (; iterator.hasNext(); ) {
-//            QueryComponent component = iterator.next();
-//            result.retainAll(component.getPostings(index, processor));
-//        }
+        return result;
+    }
 
-		// we retain all elements that are already there. we dont add postings with duplicate ids. change?
-		return result;
-	}
-
-	@Override
-	public String toString() {
-		return
-				String.join(" ", mComponents.stream().map(c -> c.toString()).collect(Collectors.toList()));
-	}
+    @Override
+    public String toString() {
+        return
+                String.join(" ", mComponents.stream().map(c -> c.toString()).collect(Collectors.toList()));
+    }
 }
 
 

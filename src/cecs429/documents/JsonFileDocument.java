@@ -32,7 +32,7 @@ public class JsonFileDocument implements FileDocument {
 
     @Override
     public String getTitle() {
-        if(mTitle == null) {
+        if (mTitle == null) {
             mTitle = getJsonData("title");
         }
 
@@ -52,7 +52,7 @@ public class JsonFileDocument implements FileDocument {
             }
             reader.endObject();
         } catch (IOException e) {
-            System.out.println(e);
+            //System.out.println(e);
 
         }
         return content;

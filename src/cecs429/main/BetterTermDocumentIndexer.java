@@ -34,7 +34,7 @@ public class BetterTermDocumentIndexer {
         long startTime = System.currentTimeMillis();
         index = indexCorpus(corpus);
         long endTime = System.currentTimeMillis();
-        long indexRunTime = (endTime - startTime)/1000;
+        long indexRunTime = (endTime - startTime) / 1000;
 
         return indexRunTime;
     }
@@ -44,12 +44,15 @@ public class BetterTermDocumentIndexer {
     }
 
     public List<Integer> runQuery(String query) {
-        if(index == null) {
+        if (index == null) {
             throw new RuntimeException("Index has not been built yet.");
         }
 
         QueryComponent qc = queryParser.parseQuery(query);
-        return qc.getPostings(this.index, tokenProcessor).stream().map(x -> x.getDocumentId()).collect(Collectors.toList());
+        return qc.getPostings(this.index, tokenProcessor)
+                .stream()
+                .map(x -> x.getDocumentId())
+                .collect(Collectors.toList());
     }
 
     public String stemToken(String token) {
@@ -69,7 +72,7 @@ public class BetterTermDocumentIndexer {
     }
 
     private Index indexCorpus(DocumentCorpus corpus) {
-        if(corpus == null) {
+        if (corpus == null) {
             throw new RuntimeException("Corpus does not exist");
         }
 
@@ -80,7 +83,7 @@ public class BetterTermDocumentIndexer {
             int position = 0;
             for (String token : ts.getTokens()) {
                 List<String> terms = this.tokenProcessor.processToken(token);
-                for (String term: terms ) {
+                for (String term : terms) {
                     ((PositionalInvertedIndex) index).addTerm(term, d.getId(), position);
                     (kGramIndex).addTerm(term, d.getId());
                 }

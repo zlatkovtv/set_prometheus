@@ -13,11 +13,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
  * @author zack-laptop
  */
 public class InvertedIndex implements Index {
-    
+
     private HashMap<String, List<Posting>> mapping = new HashMap<>();
 
     /**
@@ -31,7 +30,7 @@ public class InvertedIndex implements Index {
      */
     public void addTerm(String term, int documentId) {
         List<Posting> results = mapping.getOrDefault(term, Collections.emptyList());
-        
+
         if (!results.isEmpty()) {
             if (results.get(results.size() - 1).getDocumentId() != documentId) {
                 results.add(new Posting(documentId));
@@ -42,16 +41,16 @@ public class InvertedIndex implements Index {
             mapping.put(term, newPosting);
         }
     }
-    
+
     @Override
     public List<Posting> getPostings(String term) {
         return mapping.getOrDefault(term, Collections.emptyList());
     }
-    
+
     @Override
     public List<String> getVocabulary() {
         List<String> mVocabulary = new ArrayList<>();
-        
+
         for (String term : mapping.keySet()) {
             mVocabulary.add(term);
         }

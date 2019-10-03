@@ -11,11 +11,10 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- *
  * @author zack-laptop
  */
 public class PositionalInvertedIndex implements Index {
-    
+
     private HashMap<String, List<Posting>> mapping = new HashMap<>();
 
     /**
@@ -50,16 +49,14 @@ public class PositionalInvertedIndex implements Index {
             mapping.put(term, newPosting);
         }
     }
-    
+
     @Override
-    public List<Posting> getPostings(String term) {
-        return mapping.getOrDefault(term, Collections.emptyList());
-    }
-    
+    public List<Posting> getPostings(String term) { return mapping.getOrDefault(term, Collections.emptyList()); }
+
     @Override
     public List<String> getVocabulary() {
         List<String> mVocabulary = new ArrayList<>();
-        
+
         for (String term : mapping.keySet()) {
             mVocabulary.add(term);
         }

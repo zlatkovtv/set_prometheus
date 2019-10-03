@@ -15,38 +15,38 @@ public class MergeOperations {
     - https://web.cs.dal.ca/~anwar/ir/lecturenotes/l9.pdf
     */
 
-    public static List<Posting> postionalIntersect(List<Posting> p1, List<Posting> p2, int k) {
+    public static List<Posting> postionalIntersect(List<Posting> list1, List<Posting> list2, int distance) {
         List<Posting> answer = new ArrayList<>();
         int itr = 0;
         int jtr = 0;
 
-        while (itr < p1.size() && jtr < p2.size()) {
-            if (p1.get(itr).getDocumentId() == p2.get(jtr).getDocumentId()) {
-                List<Integer> l = new ArrayList<>();
-                List<Integer> pp1 = p1.get(itr).getPositions();
-                List<Integer> pp2 = p2.get(jtr).getPositions();
+        while (itr < list1.size() && jtr < list2.size()) {
+            if (list1.get(itr).getDocumentId() == list2.get(jtr).getDocumentId()) {
+                List<Integer> tempList = new ArrayList<>();
+                List<Integer> list1Positions = list1.get(itr).getPositions();
+                List<Integer> list2Positions = list2.get(jtr).getPositions();
                 int ip = 0;
                 int jp = 0;
-                while (ip < pp1.size()) {
-                    while (jp < pp2.size()) {
-                        if ((pp2.get(jp) - pp1.get(ip)) <= k) {
-                            l.add(pp2.get(jp));
+                while (ip < list1Positions.size()) {
+                    while (jp < list2Positions.size()) {
+                        if ((list2Positions.get(jp) - list1Positions.get(ip)) <= distance) {
+                            tempList.add(list2Positions.get(jp));
 
-                        } else if (pp2.get(jp) > pp1.get(ip)) {
+                        } else if (list2Positions.get(jp) > list1Positions.get(ip)) {
                             break;
                         }
                         ++jp;
 
                     }
 
-                    while (l.size() > 0 && (pp1.get(ip) - l.get(0)) >= k) {
-                        l.remove(0);
+                    while (tempList.size() > 0 && (list1Positions.get(ip) - tempList.get(0)) >= distance) {
+                        tempList.remove(0);
                     }
-                    for (Integer ps : l) {
+                    for (Integer ps : tempList) {
                         ArrayList<Integer> tmp2 = new ArrayList<>();
-                        tmp2.add(pp1.get(ip));
+                        tmp2.add(list1Positions.get(ip));
                         tmp2.add(ps);
-                        Posting p = new Posting(p1.get(itr).getDocumentId(), tmp2);
+                        Posting p = new Posting(list1.get(itr).getDocumentId(), tmp2);
 
                         answer.add(p);
 
@@ -56,7 +56,7 @@ public class MergeOperations {
                 }
                 ++itr;
                 ++jtr;
-            } else if (p1.get(itr).getDocumentId() < p2.get(jtr).getDocumentId()) {
+            } else if (list1.get(itr).getDocumentId() < list2.get(jtr).getDocumentId()) {
                 ++itr;
             } else {
                 ++jtr;
@@ -68,7 +68,7 @@ public class MergeOperations {
 
     public static List<Posting> unionMerge(List<Posting> pList1, List<Posting> pList2) {
         // Reference https://www.geeksforgeeks.org/two-pointers-technique/
-        // FYI The logic here is the same as a leet code question
+
         int i = 0, j = 0;
         List<Posting> tmp = new ArrayList<>();
 
