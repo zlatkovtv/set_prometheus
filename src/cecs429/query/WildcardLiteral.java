@@ -8,10 +8,7 @@ import cecs429.text.TokenProcessor;
 import cecs429.util.KGramIterator;
 import cecs429.util.MergeOperations;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class WildcardLiteral implements QueryComponent {
@@ -30,8 +27,13 @@ public class WildcardLiteral implements QueryComponent {
 
         originalWord = tokenProcessor.processQueryToken(originalWord);
         StringBuilder sb = new StringBuilder(originalWord);
-        sb.insert(0, '$');
-        sb.append('$');
+        if(sb.charAt(0) != '*') {
+            sb.insert(0, '$');
+        }
+
+        if(sb.charAt(sb.length() - 1) != '*') {
+            sb.append('$');
+        }
 
         String term = sb.toString();
         List<String> parts = Arrays.asList(term.split("\\*"));
@@ -53,21 +55,23 @@ public class WildcardLiteral implements QueryComponent {
 
         String regexPattern = originalWord.replace("*", ".*");
         KGramIndex kGramIndex = BetterTermDocumentIndexer.getKGramIndex();
-        List<String> candidates = new ArrayList<>();
+        Set<String> candidates = new HashSet<>();
 
         for (String gram : kGrams) {
             for (String candidate : kGramIndex.getCandidates(gram)) {
                 String normalizedCandidate = tokenProcessor.normalizeToken(candidate);
-                if (candidate.matches(regexPattern) && (!candidates.contains(normalizedCandidate))) {
+                if (candidate.matches(regexPattern)) {
                     candidates.add(normalizedCandidate);
                 }
             }
         }
 
-        List<Posting> results = index.getPostings(candidates.get(0));
+        Iterator iterator = candidates.iterator();
 
-        for (int i = 1; i < candidates.size(); i++) {
-            results = MergeOperations.unionMerge(results, index.getPostings(candidates.get(i)));
+        List<Posting> results = index.getPostings(iterator.next().toString());
+
+        while (iterator.hasNext()) {
+            results = MergeOperations.unionMerge(results, index.getPostings(iterator.next().toString()));
         }
 
         return results;

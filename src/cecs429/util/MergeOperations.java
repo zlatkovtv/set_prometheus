@@ -47,7 +47,6 @@ public class MergeOperations {
                         tmp2.add(list1Positions.get(ip));
                         tmp2.add(ps);
                         Posting p = new Posting(list1.get(itr).getDocumentId(), tmp2);
-
                         answer.add(p);
 
                     }
