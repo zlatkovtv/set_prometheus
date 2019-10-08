@@ -28,7 +28,7 @@ public class NearLiteral implements QueryComponent {
         String first = tokenProcessor.processQueryToken(parts.get(0));
         String second = tokenProcessor.processQueryToken(parts.get(2));
 
-        return MergeOperations.postionalIntersect(index.getPostings(first), index.getPostings(second), integerK);
-
+        List<Posting> result = MergeOperations.postionalIntersect(index.getPostings(first), index.getPostings(second), integerK);
+        return MergeOperations.normalizeToUnique(result);
     }
 }

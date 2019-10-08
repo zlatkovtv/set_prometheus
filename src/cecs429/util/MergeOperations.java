@@ -129,4 +129,17 @@ public class MergeOperations {
         return tmp;
 
     }
+
+    public static List<Posting> normalizeToUnique(List<Posting> list) {
+        List<Posting> unique = new ArrayList<>();
+        List<Integer> added = new ArrayList<>();
+        for (Posting p: list) {
+            if(!added.contains(p.getDocumentId())) {
+                unique.add(p);
+                added.add(p.getDocumentId());
+            }
+        }
+
+        return unique;
+    }
 }

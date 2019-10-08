@@ -42,21 +42,10 @@ public class PhraseLiteral implements QueryComponent {
             result = MergeOperations.postionalIntersect(result, index.getPostings(terms.next()), K_VALUE);
         }
 
-        return normalizeToUnique(result);
+        return MergeOperations.normalizeToUnique(result);
     }
 
-    private List<Posting> normalizeToUnique(List<Posting> list) {
-        List<Posting> unique = new ArrayList<>();
-        List<Integer> added = new ArrayList<>();
-        for (Posting p: list) {
-            if(!added.contains(p.getDocumentId())) {
-                unique.add(p);
-                added.add(p.getDocumentId());
-            }
-        }
 
-        return unique;
-    }
 
     @Override
     public String toString() {
