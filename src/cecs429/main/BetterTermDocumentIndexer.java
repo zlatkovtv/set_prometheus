@@ -6,6 +6,7 @@ import cecs429.documents.DocumentCorpus;
 import cecs429.index.Index;
 import cecs429.index.KGramIndex;
 import cecs429.index.PositionalInvertedIndex;
+import cecs429.index.Posting;
 import cecs429.query.BooleanQueryParser;
 import cecs429.query.QueryComponent;
 import cecs429.text.AdvancedTokenProcessor;
@@ -14,7 +15,10 @@ import cecs429.text.Stemmer;
 import cecs429.text.TokenStream;
 
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class BetterTermDocumentIndexer {
@@ -49,10 +53,16 @@ public class BetterTermDocumentIndexer {
         }
 
         QueryComponent qc = queryParser.parseQuery(query);
-        return qc.getPostings(this.index, tokenProcessor)
+        List<Integer> docIds = qc.getPostings(this.index, tokenProcessor)
                 .stream()
                 .map(x -> x.getDocumentId())
                 .collect(Collectors.toList());
+
+        Set<Integer> set = new HashSet<>(docIds);
+        docIds.clear();
+        docIds.addAll(set);
+        Collections.sort(docIds);
+        return docIds;
     }
 
     public String stemToken(String token) {

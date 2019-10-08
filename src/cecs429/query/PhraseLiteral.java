@@ -42,7 +42,7 @@ public class PhraseLiteral implements QueryComponent {
             result = MergeOperations.postionalIntersect(result, index.getPostings(terms.next()), K_VALUE);
         }
 
-        return MergeOperations.normalizeToUnique(result);
+        return result;
     }
 
 

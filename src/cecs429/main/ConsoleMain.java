@@ -9,7 +9,7 @@ Please use UIMain as this is just for quickly running and debugging
  */
 
 public class ConsoleMain {
-    private static final String path = "C:\\Users\\zack-laptop\\Documents\\NetBeansProjects\\Homework3\\assets\\split";
+    private static final String path = "C:\\Users\\Memphis\\Desktop\\Projects\\SET\\Homework3\\assets\\split2";
     private static Scanner reader = new Scanner(System.in);
 
     public static void main(String[] args) {
