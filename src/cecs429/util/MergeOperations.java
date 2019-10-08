@@ -29,7 +29,8 @@ public class MergeOperations {
                 int jp = 0;
                 while (ip < list1Positions.size()) {
                     while (jp < list2Positions.size()) {
-                        if ((list2Positions.get(jp) - list1Positions.get(ip)) <= distance) {
+                        int difference = (list2Positions.get(jp) - list1Positions.get(ip));
+                        if ((difference <= distance) && (difference > 0)) {
                             tempList.add(list2Positions.get(jp));
 
                         } else if (list2Positions.get(jp) > list1Positions.get(ip)) {
