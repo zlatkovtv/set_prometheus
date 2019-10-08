@@ -171,7 +171,7 @@ public class BooleanQueryParser {
                 int nextBracket = subquery.indexOf(']', startIndex);
                 lengthOut = nextBracket - startIndex;
                 String subString = subquery.substring(startIndex, startIndex + lengthOut);
-                if (subString.toLowerCase().contains("near/")) {
+                if (subString.toLowerCase().indexOf("near/") >= 0) {
                     return new Literal(
                             new StringBounds(startIndex, lengthOut + 1),
                             new NearLiteral(subString));
