@@ -77,9 +77,14 @@ public class BetterTermDocumentIndexer {
         return kGramIndex;
     }
 
-    private DocumentCorpus loadCorpus(Path path) {
-        return DirectoryCorpus.loadJsonDirectory(path);
+    public Index getIndex() {
+        return index;
     }
+
+    private DocumentCorpus loadCorpus(Path path) {
+        return DirectoryCorpus.loadTextDirectory(path,".txt");
+    }
+
 
     private Index indexCorpus(DocumentCorpus corpus) {
         if (corpus == null) {
@@ -94,7 +99,7 @@ public class BetterTermDocumentIndexer {
             for (String token : ts.getTokens()) {
                 List<String> terms = this.tokenProcessor.processToken(token);
                 for (String term : terms) {
-                    if(term.isEmpty()) {
+                    if (term.isEmpty()) {
                         continue;
                     }
 
