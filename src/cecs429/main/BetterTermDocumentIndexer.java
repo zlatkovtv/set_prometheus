@@ -3,10 +3,7 @@ package cecs429.main;
 import cecs429.documents.DirectoryCorpus;
 import cecs429.documents.Document;
 import cecs429.documents.DocumentCorpus;
-import cecs429.index.Index;
-import cecs429.index.KGramIndex;
-import cecs429.index.PositionalInvertedIndex;
-import cecs429.index.Posting;
+import cecs429.index.*;
 import cecs429.query.BooleanQueryParser;
 import cecs429.query.QueryComponent;
 import cecs429.text.AdvancedTokenProcessor;
@@ -24,6 +21,7 @@ import java.util.stream.Collectors;
 public class BetterTermDocumentIndexer {
     private DocumentCorpus corpus;
     private Index index;
+    private Index diskIndex;
     private static KGramIndex kGramIndex;
     private BooleanQueryParser queryParser;
     private AdvancedTokenProcessor tokenProcessor;
@@ -48,12 +46,12 @@ public class BetterTermDocumentIndexer {
     }
 
     public List<Integer> runQuery(String query) {
-        if (index == null) {
+        if (this.diskIndex == null) {
             throw new RuntimeException("Index has not been built yet.");
         }
 
         QueryComponent qc = queryParser.parseQuery(query);
-        List<Integer> docIds = qc.getPostings(this.index, tokenProcessor)
+        List<Integer> docIds = qc.getPostings(this.diskIndex, tokenProcessor)
                 .stream()
                 .map(x -> x.getDocumentId())
                 .collect(Collectors.toList());
@@ -73,12 +71,16 @@ public class BetterTermDocumentIndexer {
         return this.index.getVocabulary();
     }
 
+    public Index getIndex() {
+        return this.index;
+    }
+
     public static KGramIndex getKGramIndex() {
         return kGramIndex;
     }
 
     private DocumentCorpus loadCorpus(Path path) {
-        return DirectoryCorpus.loadJsonDirectory(path);
+        return DirectoryCorpus.loadTextDirectory(path, ".txt");
     }
 
     private Index indexCorpus(DocumentCorpus corpus) {
@@ -107,5 +109,10 @@ public class BetterTermDocumentIndexer {
         }
 
         return index;
+    }
+
+    public List<Integer> getResults(String term, String path) {
+        this.diskIndex = new DiskPositionalIndex(path);
+        return runQuery(term);
     }
 }

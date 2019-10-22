@@ -9,4 +9,6 @@ Milestone 1 Options:
 3. FIXED: NEAR
 
 
+MILESTONE 2
 
+Fix everything 
