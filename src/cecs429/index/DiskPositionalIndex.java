@@ -145,4 +145,18 @@ public class DiskPositionalIndex  implements Index {
         mPostings.seek(bytePosition);
         return mPostings.readInt();
     }
+
+    private int readAtNext() throws IOException {
+        int n = 0;
+        byte b;
+        for (;;) {
+            b = mPostings.readByte();
+            if ((b & 0xFF) < 128) {
+                n = 128 * n + (b & 0xFF);
+            } else {
+                n = 128 * n + ((b & 0xFF) - 128);
+                return n;
+            }
+        }
+    }
 }

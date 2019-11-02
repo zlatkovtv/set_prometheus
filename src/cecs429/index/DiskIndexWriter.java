@@ -1,6 +1,7 @@
 package cecs429.index;
 
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -23,6 +24,7 @@ public class DiskIndexWriter {
         File vocabFile = new File(path + "/Vocab.bin");
         File postingsFile = new File(path + "/Postings.bin");
         File tableFile = new File(path + "/VocabTable.bin");
+
         if(!vocabFile.exists() || !postingsFile.exists()|| !tableFile.exists() ) {
             vocabFile.delete();
             postingsFile.delete();
@@ -71,7 +73,7 @@ public class DiskIndexWriter {
         DataOutputStream out = new DataOutputStream(
                 new FileOutputStream(path + "/Vocab.bin"));
         for (String term:vocabulary) {
-            out.writeUTF(term);
+            out.writeBytes(term);
             diskVocab.add(length);
             length += term.length();
         }
@@ -81,14 +83,15 @@ public class DiskIndexWriter {
         DataOutputStream out = new DataOutputStream(new FileOutputStream(path + "/VocabTable.bin"));
         Iterator<Long> posting = postings.iterator();
         Iterator<Long> diskIterator = diskVocab.iterator();
+        byte[] tSize = ByteBuffer.allocate(4).putInt(diskVocab.size()).array();
+        out.write(tSize, 0, tSize.length);
+
         while(posting.hasNext() && diskIterator.hasNext()) {
-            out.writeLong(diskIterator.next());
-            out.writeLong(posting.next());
+            byte[] vPositionBytes = ByteBuffer.allocate(8).putLong(diskIterator.next()).array();
+            out.write(vPositionBytes, 0, vPositionBytes.length);
+
+            byte[] pPositionBytes  = ByteBuffer.allocate(8).putLong(posting.next()).array();
+            out.write(pPositionBytes , 0, pPositionBytes .length);
         }
-
-
     }
-
-
-
 }
