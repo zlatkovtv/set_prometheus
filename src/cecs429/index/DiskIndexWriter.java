@@ -31,41 +31,58 @@ public class DiskIndexWriter {
             tableFile.delete();
             //create posting.bin -> returns/fill in data structure that helps you remmebr the bystes postion (a long)
             vocabulary = index.getVocabulary();
+
             // write each term in the index vocabulary to vocab,bin -> return/fill in the byte position
             postings = createPostingBin();
+            System.out.println("Finished creating postings.bin");
             createVocabBin();
+            System.out.println("Finished creating vocab.bin");
             //vocabTable.bin writing two lomg values
             createVocabTableBin();
+            System.out.println("Finished creating table.bin");
         }
 
     }
 
     private List<Long> createPostingBin() throws IOException {
+        int cursor = 0;
         List<Long> addresses = new ArrayList<>();
         DataOutputStream out = new DataOutputStream(new FileOutputStream(path + "/Postings.bin"));
         for (String term : vocabulary) {
             int docIdGap = 0;
             List<Posting> posting = index.getPostings(term);
             //write dft how many documents this posting has
+            addresses.add(Long.valueOf(cursor));
+            cursor += 4;
             out.writeInt(posting.size());
-            addresses.add(Long.valueOf(out.size()));
             for (Posting p : posting) {
                 docIdGap = p.getDocumentId() - docIdGap;
+                addresses.add(Long.valueOf(cursor));
+                cursor += 4;
                 out.writeInt(docIdGap);
-                addresses.add(Long.valueOf(out.size()));
+                addresses.add(Long.valueOf(cursor));
+                cursor += 4;
                 out.writeInt(p.getPositions().size());
-                addresses.add(Long.valueOf(out.size()));
+
                 int postingGap = 0;
                 for (Integer i : p.getPositions()) {
                     postingGap = i - postingGap;
+                    addresses.add(Long.valueOf(cursor));
+                    cursor += 4;
                     out.writeInt(postingGap);
-                    addresses.add(Long.valueOf(out.size()));
+
                 }
-
             }
-
         }
+
+        out.close();
         return addresses;
+    }
+
+    private int getByteLength(int input) {
+        byte[] temp;
+        temp = ByteBuffer.allocate(4).putInt(input).array();
+        return temp.length;
     }
 
     private void createVocabBin() throws IOException {
@@ -77,6 +94,8 @@ public class DiskIndexWriter {
             diskVocab.add(length);
             length += term.length();
         }
+
+        out.close();
     }
 
     private void createVocabTableBin() throws IOException {
@@ -93,5 +112,7 @@ public class DiskIndexWriter {
             byte[] pPositionBytes  = ByteBuffer.allocate(8).putLong(posting.next()).array();
             out.write(pPositionBytes , 0, pPositionBytes .length);
         }
+
+        out.close();
     }
 }
