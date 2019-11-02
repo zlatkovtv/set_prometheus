@@ -79,6 +79,9 @@ public class BooleanQueryParser {
                 allSubqueries.add(subqueryLiterals.get(0));
             } else {
                 // With more than one literal, we must wrap them in an AndQuery component.
+                if(subqueryLiterals.contains(("-"))) {
+
+                }
                 allSubqueries.add(new AndQuery(subqueryLiterals));
             }
             start = nextSubquery.start + nextSubquery.length;
@@ -181,6 +184,12 @@ public class BooleanQueryParser {
                             new StringBounds(startIndex, lengthOut),
                             new TermLiteral(subString));
                 }
+            case '-':
+                startIndex++;
+                Literal internal = findNextLiteral(subquery, startIndex);
+                return new Literal(
+                        internal.bounds,
+                        new NotQuery(internal.literalComponent));
             default:
                 if (nextSpace < 0) {
                     // No more literals in this subquery.
@@ -188,12 +197,14 @@ public class BooleanQueryParser {
                 } else {
                     lengthOut = nextSpace - startIndex;
                 }
+
                 subString = subquery.substring(startIndex, startIndex + lengthOut);
                 if (subString.contains("*")) {
                     return new Literal(
                             new StringBounds(startIndex, lengthOut),
                             new WildcardLiteral(subString));
                 }
+
                 // This is a term literal containing a single term.
                 return new Literal(
                         new StringBounds(startIndex, lengthOut),

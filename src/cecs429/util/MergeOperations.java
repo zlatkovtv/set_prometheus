@@ -130,7 +130,30 @@ public class MergeOperations {
         return tmp;
 
     }
+    public static List<Posting> NotMerge(List<Posting> pList1, List<Posting> pList2) {
+        int itr = 0;
+        int jtr = 0;
+        List<Posting> tmp = new ArrayList<>(); //Temporary list to hold resultes
 
+        int pList1Size = pList1.size();
+        int pList2Size = pList2.size();
+
+        while (itr < pList1Size && jtr < pList2Size) {
+            if (pList1.get(itr).getDocumentId() == pList2.get(jtr).getDocumentId()) {
+                //tmp.add(pList1.get(itr));
+                ++itr;
+                ++jtr;
+            } else if (pList1.get(itr).getDocumentId() < pList2.get(jtr).getDocumentId()) {
+                tmp.add(pList1.get(itr));
+                ++itr;
+            } else if (pList2.get(jtr).getDocumentId() < pList1.get(itr).getDocumentId()) {
+                ++jtr;
+            }
+        }
+
+        return tmp;
+
+    }
     public static List<Posting> normalizeToUnique(List<Posting> list) {
         List<Posting> unique = new ArrayList<>();
         List<Integer> added = new ArrayList<>();
