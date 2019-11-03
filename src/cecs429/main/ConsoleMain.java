@@ -12,7 +12,7 @@ Please use UIMain as this is just for quickly running and debugging
  */
 
 public class ConsoleMain {
-    private static final String path = "C:\\Users\\018092397SA\\Desktop\\Projects\\SET-milestone1\\moby-dick\\json";
+    private static final String path = "C:\\Users\\Memphis\\Desktop\\Projects\\CSULB\\SET\\set_prometheus\\moby-dick\\json";
     private static Scanner reader = new Scanner(System.in);
 
     public static void main(String[] args) throws IOException {

@@ -79,12 +79,9 @@ public class DiskPositionalIndex  implements Index {
                     new File(indexName, "VocabTable.bin"),
                     "r");
 
-            byte[] byteBuffer = new byte[4];
-            tableFile.read(byteBuffer, 0, byteBuffer.length);
-
             int tableIndex = 0;
-            vocabTable = new long[ByteBuffer.wrap(byteBuffer).getInt() * 2];
-            byteBuffer = new byte[8];
+            vocabTable = new long[(int) tableFile.length() / 16 * 2];
+            byte[] byteBuffer = new byte[8];
 
             while (tableFile.read(byteBuffer, 0, byteBuffer.length) > 0) { // while we keep reading 4 bytes
                 vocabTable[tableIndex] = ByteBuffer.wrap(byteBuffer).getLong();
@@ -114,15 +111,19 @@ public class DiskPositionalIndex  implements Index {
         try {
             mPostings.seek(bytePosition);
             int numberOfDocuments = mPostings.readInt();
+            int docIdGap = 0;
             for(int i = 0; i < numberOfDocuments; i++) {
-                int docId = readAtNext(bytePosition);
-                Posting posting = new Posting(docId, new ArrayList<>());
+                docIdGap += mPostings.readInt();
+                Posting posting = new Posting(docIdGap, new ArrayList<>());
 
                 // TODO scores
 
-                int numberOfPositions = readAtNext(bytePosition);
+                int numberOfPositions = mPostings.readInt();
+
+                int currentPosition = 0;
                 for (int j = 0; j < numberOfPositions; j++) {
-                    posting.addPosition(readAtNext(bytePosition));
+                    currentPosition += mPostings.readInt();
+                    posting.addPosition(currentPosition);
                 }
 
                 postings.add(posting);
@@ -140,11 +141,11 @@ public class DiskPositionalIndex  implements Index {
         return null;
     }
 
-    private int readAtNext(long bytePosition) throws IOException {
-        bytePosition += 4;
-        mPostings.seek(bytePosition);
-        return mPostings.readInt();
-    }
+//    private int readAtNext(long bytePosition) throws IOException {
+////        bytePosition += 4;
+////        mPostings.seek(bytePosition);
+//        return mPostings.readInt();
+//    }
 
     private int readAtNext() throws IOException {
         int n = 0;

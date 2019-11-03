@@ -45,44 +45,32 @@ public class DiskIndexWriter {
     }
 
     private List<Long> createPostingBin() throws IOException {
-        int cursor = 0;
         List<Long> addresses = new ArrayList<>();
         DataOutputStream out = new DataOutputStream(new FileOutputStream(path + "/Postings.bin"));
+        addresses.add(0l);
         for (String term : vocabulary) {
             int docIdGap = 0;
             List<Posting> posting = index.getPostings(term);
             //write dft how many documents this posting has
-            addresses.add(Long.valueOf(cursor));
-            cursor += 4;
+
             out.writeInt(posting.size());
             for (Posting p : posting) {
                 docIdGap = p.getDocumentId() - docIdGap;
-                addresses.add(Long.valueOf(cursor));
-                cursor += 4;
                 out.writeInt(docIdGap);
-                addresses.add(Long.valueOf(cursor));
-                cursor += 4;
                 out.writeInt(p.getPositions().size());
 
                 int postingGap = 0;
                 for (Integer i : p.getPositions()) {
                     postingGap = i - postingGap;
-                    addresses.add(Long.valueOf(cursor));
-                    cursor += 4;
                     out.writeInt(postingGap);
 
                 }
             }
+            addresses.add(Long.valueOf(out.size()));
         }
 
         out.close();
         return addresses;
-    }
-
-    private int getByteLength(int input) {
-        byte[] temp;
-        temp = ByteBuffer.allocate(4).putInt(input).array();
-        return temp.length;
     }
 
     private void createVocabBin() throws IOException {
@@ -102,15 +90,10 @@ public class DiskIndexWriter {
         DataOutputStream out = new DataOutputStream(new FileOutputStream(path + "/VocabTable.bin"));
         Iterator<Long> posting = postings.iterator();
         Iterator<Long> diskIterator = diskVocab.iterator();
-        byte[] tSize = ByteBuffer.allocate(4).putInt(diskVocab.size()).array();
-        out.write(tSize, 0, tSize.length);
 
         while(posting.hasNext() && diskIterator.hasNext()) {
-            byte[] vPositionBytes = ByteBuffer.allocate(8).putLong(diskIterator.next()).array();
-            out.write(vPositionBytes, 0, vPositionBytes.length);
-
-            byte[] pPositionBytes  = ByteBuffer.allocate(8).putLong(posting.next()).array();
-            out.write(pPositionBytes , 0, pPositionBytes .length);
+            out.writeLong(diskIterator.next());
+            out.writeLong(posting.next());
         }
 
         out.close();
