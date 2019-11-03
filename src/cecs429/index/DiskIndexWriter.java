@@ -1,5 +1,7 @@
 package cecs429.index;
 
+import cecs429.util.VariableByteEncoder;
+
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
@@ -52,17 +54,16 @@ public class DiskIndexWriter {
             int docIdGap = 0;
             List<Posting> posting = index.getPostings(term);
             //write dft how many documents this posting has
-
-            out.writeInt(posting.size());
+            writeVBInt(out, posting.size());
             for (Posting p : posting) {
                 docIdGap = p.getDocumentId() - docIdGap;
-                out.writeInt(docIdGap);
-                out.writeInt(p.getPositions().size());
+                writeVBInt(out, docIdGap);
+                writeVBInt(out, p.getPositions().size());
 
                 int postingGap = 0;
                 for (Integer i : p.getPositions()) {
                     postingGap = i - postingGap;
-                    out.writeInt(postingGap);
+                    writeVBInt(out, postingGap);
 
                 }
             }
@@ -71,6 +72,15 @@ public class DiskIndexWriter {
 
         out.close();
         return addresses;
+    }
+
+    private void writeVBInt(DataOutputStream out, int number) throws IOException {
+        List<Long> bytes = VariableByteEncoder.VBEncodenumber(Long.valueOf(number));
+        for (long b: bytes) {
+            byte[] ba = new byte[1];
+            ba[0] = (byte) b;
+            out.write(ba, 0, 1);
+        }
     }
 
     private void createVocabBin() throws IOException {

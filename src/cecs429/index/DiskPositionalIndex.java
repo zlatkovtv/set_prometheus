@@ -1,9 +1,8 @@
 package cecs429.index;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import cecs429.util.VariableByteEncoder;
+
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -110,19 +109,18 @@ public class DiskPositionalIndex  implements Index {
 
         try {
             mPostings.seek(bytePosition);
-            int numberOfDocuments = mPostings.readInt();
+            long numberOfDocuments = readVBLong();
             int docIdGap = 0;
             for(int i = 0; i < numberOfDocuments; i++) {
-                docIdGap += mPostings.readInt();
+                docIdGap += readVBLong();
                 Posting posting = new Posting(docIdGap, new ArrayList<>());
-
                 // TODO scores
 
-                int numberOfPositions = mPostings.readInt();
+                long numberOfPositions = readVBLong();
 
                 int currentPosition = 0;
                 for (int j = 0; j < numberOfPositions; j++) {
-                    currentPosition += mPostings.readInt();
+                    currentPosition += readVBLong();
                     posting.addPosition(currentPosition);
                 }
 
@@ -137,27 +135,19 @@ public class DiskPositionalIndex  implements Index {
 
     @Override
     public List<String> getVocabulary() {
-
         return null;
     }
 
-//    private int readAtNext(long bytePosition) throws IOException {
-////        bytePosition += 4;
-////        mPostings.seek(bytePosition);
-//        return mPostings.readInt();
-//    }
+    private long readVBLong() throws IOException {
+        long encode = 0;
+        List<Long> encoded = new ArrayList<Long>();
 
-    private int readAtNext() throws IOException {
-        int n = 0;
-        byte b;
-        for (;;) {
-            b = mPostings.readByte();
-            if ((b & 0xFF) < 128) {
-                n = 128 * n + (b & 0xFF);
-            } else {
-                n = 128 * n + ((b & 0xFF) - 128);
-                return n;
-            }
-        }
+        do {
+            encode = mPostings.read();
+            encoded.add(encode);
+        } while (encode < 128);
+
+        // Genius way of decoding.
+        return VariableByteEncoder.VBDecode(encoded).get(0);
     }
 }
