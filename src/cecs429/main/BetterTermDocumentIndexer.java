@@ -6,6 +6,7 @@ import cecs429.documents.DocumentCorpus;
 import cecs429.index.*;
 import cecs429.query.BooleanQueryParser;
 import cecs429.query.QueryComponent;
+import cecs429.query.RankedQuery;
 import cecs429.text.AdvancedTokenProcessor;
 import cecs429.text.EnglishTokenStream;
 import cecs429.text.Stemmer;
@@ -24,13 +25,13 @@ public class BetterTermDocumentIndexer {
     private AdvancedTokenProcessor tokenProcessor;
     private ArrayList<Double> ld;
 
-    public BetterTermDocumentIndexer() {
+    public BetterTermDocumentIndexer(Path path) {
         queryParser = new BooleanQueryParser();
         tokenProcessor = new AdvancedTokenProcessor();
+        corpus = loadCorpus(path);
     }
 
-    public long runIndexer(Path path) {
-        corpus = loadCorpus(path);
+    public long runIndexer() {
         long startTime = System.currentTimeMillis();
         index = indexCorpus(corpus);
         long endTime = System.currentTimeMillis();
@@ -43,22 +44,22 @@ public class BetterTermDocumentIndexer {
         return this.corpus;
     }
 
-    public List<Integer> runQuery(String query) {
+    public List<Posting> runQuery(String query) {
         if (this.diskIndex == null) {
             throw new RuntimeException("Index has not been built yet.");
         }
 
         QueryComponent qc = queryParser.parseQuery(query);
-        List<Integer> docIds = qc.getPostings(this.diskIndex, tokenProcessor)
-                .stream()
-                .map(x -> x.getDocumentId())
-                .collect(Collectors.toList());
+        return qc.getPostings(this.diskIndex, tokenProcessor);
+    }
 
-        Set<Integer> set = new HashSet<>(docIds);
-        docIds.clear();
-        docIds.addAll(set);
-        Collections.sort(docIds);
-        return docIds;
+    public List<Posting> runRankedQuery(String query) {
+        if (this.diskIndex == null) {
+            throw new RuntimeException("Index has not been built yet.");
+        }
+
+        RankedQuery rq = new RankedQuery(query, corpus.getCorpusSize());
+        return rq.getPostings(this.diskIndex, tokenProcessor);
     }
 
     public String stemToken(String token) {
@@ -139,8 +140,13 @@ public class BetterTermDocumentIndexer {
 
     }
 
-    public List<Integer> getResults(String term, String path) {
+    public List<Posting> getResults(String term, String path) {
         this.diskIndex = new DiskPositionalIndex(path);
         return runQuery(term);
+    }
+
+    public List<Posting> getRankedResults(String term, String path) {
+        this.diskIndex = new DiskPositionalIndex(path);
+        return runRankedQuery(term);
     }
 }

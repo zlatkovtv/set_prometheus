@@ -10,7 +10,7 @@ public class UIMain {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             setUIFont(new javax.swing.plaf.FontUIResource("Serif",Font.PLAIN,16));
-            MainFrameController ctrl = new MainFrameController(new BetterTermDocumentIndexer());
+            MainFrameController ctrl = new MainFrameController(new BetterTermDocumentIndexer(null));
         } catch (Exception e) {
             e.printStackTrace();
         }

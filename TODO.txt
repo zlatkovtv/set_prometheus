@@ -11,4 +11,7 @@ Milestone 1 Options:
 
 MILESTONE 2
 
-Fix everything 
+TODO remove positions if Neil requires that. 
+TODO Fix UI, as we screwed up ordering of normal query results
+TODO Verify, that scores are correct
+TODO DSP Index

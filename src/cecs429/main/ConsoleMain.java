@@ -1,11 +1,11 @@
 package cecs429.main;
 
 import cecs429.index.DiskIndexWriter;
+import cecs429.index.Posting;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 /*
 Please use UIMain as this is just for quickly running and debugging
@@ -44,7 +44,7 @@ public class ConsoleMain {
         System.out.println("2. Query index.");
         System.out.print("\n\nPlease make a selection: ");
 
-        BetterTermDocumentIndexer indexer = new BetterTermDocumentIndexer();
+        BetterTermDocumentIndexer indexer = new BetterTermDocumentIndexer(Paths.get(path).toAbsolutePath());
 
         while (true) {
             String input = reader.nextLine().toLowerCase();
@@ -53,7 +53,7 @@ public class ConsoleMain {
                     System.exit(0);
                     break;
                 case "1":
-                    indexer.runIndexer(Paths.get(path).toAbsolutePath());
+                    indexer.runIndexer();
                     DiskIndexWriter writer = new DiskIndexWriter(indexer.getIndex(), path, indexer.getDocWeight());
                     writer.writeIndex();
                     break;
@@ -65,15 +65,21 @@ public class ConsoleMain {
                     System.out.print("\n\nPlease enter search term: ");
                     String query = reader.nextLine();
 
-                    List<Integer> results = indexer.getResults(query, path);
+                    List<Posting> results = new ArrayList<>();
                     if (mode.startsWith("1")) {
-                        // call function to display mode 1
+                        results = indexer.getResults(query, path);
                     } else if (mode.startsWith("2")) {
-                        // call function to display mode 1
+                       results = indexer.getRankedResults(query, path);
                     }
 
-                    for (Integer docId : results) {
-                        System.out.println("Document ID " + docId);
+//                    Set<Integer> set = new HashSet<>(docIds);
+//                    docIds.clear();
+//                    docIds.addAll(set);
+//                    Collections.sort(docIds);
+
+                    for (Posting p : results) {
+                        System.out.println("Document ID " + p.getDocumentId());
+                        System.out.println("Document Score " + p.getScore());
                     }
 
                     System.out.println("Total: " + results.size());

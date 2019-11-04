@@ -48,6 +48,11 @@ public class InvertedIndex implements Index {
     }
 
     @Override
+    public List<Posting> getRankedPostings(String term) {
+        return null;
+    }
+
+    @Override
     public List<String> getVocabulary() {
         List<String> mVocabulary = new ArrayList<>();
 

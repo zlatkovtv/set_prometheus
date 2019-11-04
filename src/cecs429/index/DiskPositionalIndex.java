@@ -6,8 +6,9 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class DiskPositionalIndex  implements Index {
+public class DiskPositionalIndex implements Index {
     private String mPath;
     private RandomAccessFile mVocabList;
     private RandomAccessFile mPostings;
@@ -116,10 +117,37 @@ public class DiskPositionalIndex  implements Index {
             for(int i = 0; i < numberOfDocuments; i++) {
                 docIdGap += readVBLong();
                 Posting posting = new Posting(docIdGap, new ArrayList<>());
-                // TODO scores
-
                 long numberOfPositions = readVBLong();
 
+                int currentPosition = 0;
+                for (int j = 0; j < numberOfPositions; j++) {
+                    currentPosition += readVBLong();
+                    posting.addPosition(currentPosition);
+                }
+
+                postings.add(posting);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return postings;
+    }
+
+    @Override
+    public List<Posting> getRankedPostings(String term) {
+        long bytePosition = binarySearchVocabulary(term);
+        List<Posting> postings = new ArrayList<>();
+
+        try {
+            mPostings.seek(bytePosition);
+            long numberOfDocuments = readVBLong();
+            int docIdGap = 0;
+            for(int i = 0; i < numberOfDocuments; i++) {
+                docIdGap += readVBLong();
+                Posting posting = new Posting(docIdGap, new ArrayList<>());
+                long numberOfPositions = readVBLong();
+                // TODO remove positions after
                 int currentPosition = 0;
                 for (int j = 0; j < numberOfPositions; j++) {
                     currentPosition += readVBLong();
@@ -153,9 +181,8 @@ public class DiskPositionalIndex  implements Index {
         return VariableByteEncoder.VBDecode(encoded).get(0);
     }
 
-    private double getLd(int bytePosition) throws IOException {
+    public double getLd(int bytePosition) throws IOException {
         mDocumentWeight.seek(bytePosition * 8);
         return mDocumentWeight.readDouble();
-
     }
 }

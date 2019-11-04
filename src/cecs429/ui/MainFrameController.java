@@ -1,6 +1,7 @@
 package cecs429.ui;
 
 import cecs429.documents.DocumentCorpus;
+import cecs429.index.Posting;
 import cecs429.ui.views.MainFrame;
 import cecs429.ui.views.TextFrame;
 import cecs429.main.BetterTermDocumentIndexer;
@@ -32,7 +33,7 @@ public class MainFrameController {
     private JLabel indexTimer;
 
     private BetterTermDocumentIndexer indexer;
-    private List<Integer> lastQueryResults;
+    private List<Posting> lastQueryResults;
 
     public MainFrameController(BetterTermDocumentIndexer indexer) {
         this.indexer = indexer;
@@ -82,7 +83,7 @@ public class MainFrameController {
     }
 
     private void openDocumentContent(int index) throws IOException {
-        int selectedDocId = lastQueryResults.get(index);
+        int selectedDocId = lastQueryResults.get(index).getDocumentId();
         BufferedReader documentContent = new BufferedReader(indexer.getCorpus().getDocument(selectedDocId).getContent());
         StringBuilder sb = new StringBuilder();
         String line = null;
@@ -114,7 +115,7 @@ public class MainFrameController {
 
         try {
             setButtonsEnabled(false);
-            long ranFor = indexer.runIndexer(chooser.getSelectedFile().toPath());
+            long ranFor = indexer.runIndexer();
             indexTimer.setText("Indexing took " + ranFor + " seconds.");
             setButtonsEnabled(true);
         } catch (Exception ex) {
@@ -183,7 +184,7 @@ public class MainFrameController {
             }
 
             for (int i = 0; i < lastQueryResults.size(); i++) {
-                termsStrings.add("Document " + (i + 1) + ": " + corpus.getDocument(lastQueryResults.get(i)).getTitle());
+                termsStrings.add("Document " + (i + 1) + ": " + corpus.getDocument(lastQueryResults.get(i).getDocumentId()).getTitle());
             }
 
             termsStrings.add("Total number of documents: " + lastQueryResults.size());

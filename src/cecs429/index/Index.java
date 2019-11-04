@@ -1,6 +1,5 @@
 package cecs429.index;
 
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -8,13 +7,12 @@ import java.util.List;
  * terms and the documents that contain them.
  */
 public interface Index {
-
     /**
      * Retrieves a list of Postings of documents that contain the given term.
      */
-
-
     List<Posting> getPostings(String term);
+
+    List<Posting> getRankedPostings(String term);
 
     /**
      * A (sorted) list of all terms in the index vocabulary.

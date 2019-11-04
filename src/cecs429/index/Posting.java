@@ -8,7 +8,14 @@ import java.util.List;
  */
 public class Posting {
     private int mDocumentId;
+    private double score;
     private List<Integer> mPositions;
+
+    public Posting(int documentId, double score) {
+        mDocumentId = documentId;
+        this.score = score;
+        this.mPositions = new ArrayList<>();
+    }
 
     public Posting(int documentId) {
         mDocumentId = documentId;
@@ -32,5 +39,9 @@ public class Posting {
     public boolean equals(Object obj) {
         Posting second = (Posting) obj;
         return this.getDocumentId() == second.getDocumentId();
+    }
+
+    public double getScore() {
+        return score;
     }
 }

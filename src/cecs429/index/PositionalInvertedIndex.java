@@ -54,6 +54,11 @@ public class PositionalInvertedIndex implements Index {
     public List<Posting> getPostings(String term) { return mapping.getOrDefault(term, Collections.emptyList()); }
 
     @Override
+    public List<Posting> getRankedPostings(String term) {
+        return null;
+    }
+
+    @Override
     public List<String> getVocabulary() {
         List<String> mVocabulary = new ArrayList<>();
 

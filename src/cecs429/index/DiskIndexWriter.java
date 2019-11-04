@@ -28,7 +28,7 @@ public class DiskIndexWriter {
         File vocabFile = new File(path + "/Vocab.bin");
         File postingsFile = new File(path + "/Postings.bin");
         File tableFile = new File(path + "/VocabTable.bin");
-        File docWeightFile = new File(path + "/docWeight.bin");
+        File docWeightFile = new File(path + "/docWeights.bin");
 
         if(!vocabFile.exists() || !postingsFile.exists()|| !tableFile.exists() ) {
             vocabFile.delete();
@@ -51,7 +51,7 @@ public class DiskIndexWriter {
 
     }
     private void createdocWeightBin() throws IOException {
-        DataOutputStream out = new DataOutputStream(new FileOutputStream(path + "/docWeight.bin"));
+        DataOutputStream out = new DataOutputStream(new FileOutputStream(path + "/docWeights.bin"));
         for (double weight: ld ) {
             out.writeDouble(weight);
         }
