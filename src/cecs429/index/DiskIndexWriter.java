@@ -15,17 +15,20 @@ public class DiskIndexWriter {
     private List<Long> diskVocab;
     private Index index;
     private String path;
+    private ArrayList<Double> ld;
 
-    public DiskIndexWriter(Index indx, String absolutepath) {
+    public DiskIndexWriter(Index indx, String absolutepath, ArrayList<Double> docWeight) {
         index = indx;
         path = absolutepath;
         diskVocab = new ArrayList<>();
+        ld = docWeight;
     }
 
     public void writeIndex() throws IOException {
         File vocabFile = new File(path + "/Vocab.bin");
         File postingsFile = new File(path + "/Postings.bin");
         File tableFile = new File(path + "/VocabTable.bin");
+        File docWeightFile = new File(path + "/docWeight.bin");
 
         if(!vocabFile.exists() || !postingsFile.exists()|| !tableFile.exists() ) {
             vocabFile.delete();
@@ -42,10 +45,18 @@ public class DiskIndexWriter {
             //vocabTable.bin writing two lomg values
             createVocabTableBin();
             System.out.println("Finished creating table.bin");
+            createdocWeightBin();
+            System.out.println("Finished creating docWeight.bin");
         }
 
     }
-
+    private void createdocWeightBin() throws IOException {
+        DataOutputStream out = new DataOutputStream(new FileOutputStream(path + "/docWeight.bin"));
+        for (double weight: ld ) {
+            out.writeDouble(weight);
+        }
+        out.close();
+    }
     private List<Long> createPostingBin() throws IOException {
         List<Long> addresses = new ArrayList<>();
         DataOutputStream out = new DataOutputStream(new FileOutputStream(path + "/Postings.bin"));

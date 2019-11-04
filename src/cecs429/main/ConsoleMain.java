@@ -54,7 +54,7 @@ public class ConsoleMain {
                     break;
                 case "1":
                     indexer.runIndexer(Paths.get(path).toAbsolutePath());
-                    DiskIndexWriter writer = new DiskIndexWriter(indexer.getIndex(), path);
+                    DiskIndexWriter writer = new DiskIndexWriter(indexer.getIndex(), path, indexer.getDocWeight());
                     writer.writeIndex();
                     break;
                 case "2":

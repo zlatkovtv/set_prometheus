@@ -11,6 +11,7 @@ public class DiskPositionalIndex  implements Index {
     private String mPath;
     private RandomAccessFile mVocabList;
     private RandomAccessFile mPostings;
+    private RandomAccessFile mDocumentWeight;
     private long[] mVocabTable;
 
     // Opens a disk inverted index that was constructed in the given path.
@@ -19,6 +20,7 @@ public class DiskPositionalIndex  implements Index {
             mPath = path;
             mVocabList = new RandomAccessFile(new File(path, "Vocab.bin"), "r");
             mPostings = new RandomAccessFile(new File(path, "Postings.bin"), "r");
+            mDocumentWeight = new RandomAccessFile(new File(path, "docWeights.bin"), "r");
             mVocabTable = readVocabTable(path);
         }
         catch (FileNotFoundException ex) {
@@ -149,5 +151,11 @@ public class DiskPositionalIndex  implements Index {
 
         // Genius way of decoding.
         return VariableByteEncoder.VBDecode(encoded).get(0);
+    }
+
+    private double getLd(int bytePosition) throws IOException {
+        mDocumentWeight.seek(bytePosition * 8);
+        return mDocumentWeight.readDouble();
+
     }
 }

@@ -12,10 +12,7 @@ import cecs429.text.Stemmer;
 import cecs429.text.TokenStream;
 
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class BetterTermDocumentIndexer {
@@ -25,6 +22,7 @@ public class BetterTermDocumentIndexer {
     private static KGramIndex kGramIndex;
     private BooleanQueryParser queryParser;
     private AdvancedTokenProcessor tokenProcessor;
+    private ArrayList<Double> ld;
 
     public BetterTermDocumentIndexer() {
         queryParser = new BooleanQueryParser();
@@ -74,6 +72,9 @@ public class BetterTermDocumentIndexer {
     public Index getIndex() {
         return this.index;
     }
+    public ArrayList<Double> getDocWeight() {
+        return this.ld;
+    }
 
     public static KGramIndex getKGramIndex() {
         return kGramIndex;
@@ -84,6 +85,9 @@ public class BetterTermDocumentIndexer {
     }
 
     private Index indexCorpus(DocumentCorpus corpus) {
+
+        ld = new ArrayList<>();
+
         if (corpus == null) {
             throw new RuntimeException("Corpus does not exist");
         }
@@ -91,13 +95,22 @@ public class BetterTermDocumentIndexer {
         Index index = new PositionalInvertedIndex();
         kGramIndex = new KGramIndex();
         for (Document d : corpus.getDocuments()) {
+            HashMap <String,Double> documentWeight  = new HashMap <String, Double>();
             TokenStream ts = new EnglishTokenStream(d.getContent());
             int position = 0;
             for (String token : ts.getTokens()) {
                 List<String> terms = this.tokenProcessor.processToken(token);
+
                 for (String term : terms) {
+
                     if(term.isEmpty()) {
                         continue;
+                    }
+                    if(!documentWeight.containsKey(term)) {
+
+                        documentWeight.put(term,1.0);
+                    } else {
+                        documentWeight.put(term, documentWeight.get(term) + 1.0);
                     }
 
                     ((PositionalInvertedIndex) index).addTerm(term, d.getId(), position);
@@ -106,9 +119,24 @@ public class BetterTermDocumentIndexer {
 
                 position++;
             }
+            double sum =0;
+            for (double tftd : documentWeight.values()) {
+                double weight = calcWDT(tftd);
+                sum += Math.pow(weight,2);
+
+            }
+            sum = Math.sqrt(sum);
+            ld.add(sum);
+
         }
 
         return index;
+    }
+
+    private double calcWDT(double tftd) {
+
+        return (1 + Math.log(tftd));
+
     }
 
     public List<Integer> getResults(String term, String path) {
