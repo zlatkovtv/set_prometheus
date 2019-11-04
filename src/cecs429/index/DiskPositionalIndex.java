@@ -151,7 +151,7 @@ public class DiskPositionalIndex implements Index {
                 int currentPosition = 0;
                 for (int j = 0; j < numberOfPositions; j++) {
                     currentPosition += readVBLong();
-                    posting.addPosition(currentPosition);
+//                    posting.addPosition(currentPosition);
                 }
 
                 postings.add(posting);

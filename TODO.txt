@@ -11,7 +11,7 @@ Milestone 1 Options:
 
 MILESTONE 2
 
-TODO remove positions if Neil requires that. 
-TODO Fix UI, as we screwed up ordering of normal query results
+TODO remove positions if Neil requires that.  - SEE VARBYTE REQUIREMENT
+TODO Fix UI, as we screwed up ordering of normal query results - FIXED CONSOLE MAIN, TODO - UI MAIN
 TODO Verify, that scores are correct
-TODO DSP Index
+TODO DSP Index - The score of Posting is currently the accumulator value. It should be wdt, as per the DSP requirement. We have to return acc values outside of the Posting object

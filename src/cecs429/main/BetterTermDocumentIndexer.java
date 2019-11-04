@@ -14,7 +14,6 @@ import cecs429.text.TokenStream;
 
 import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class BetterTermDocumentIndexer {
     private DocumentCorpus corpus;
@@ -44,22 +43,20 @@ public class BetterTermDocumentIndexer {
         return this.corpus;
     }
 
-    public List<Posting> runQuery(String query) {
+    public List<Posting> runQuery(String query, boolean ranked) {
         if (this.diskIndex == null) {
             throw new RuntimeException("Index has not been built yet.");
         }
 
-        QueryComponent qc = queryParser.parseQuery(query);
+        QueryComponent qc;
+
+        if(ranked) {
+            qc = new RankedQuery(query, corpus.getCorpusSize());
+        } else {
+            qc  = queryParser.parseQuery(query);
+        }
+
         return qc.getPostings(this.diskIndex, tokenProcessor);
-    }
-
-    public List<Posting> runRankedQuery(String query) {
-        if (this.diskIndex == null) {
-            throw new RuntimeException("Index has not been built yet.");
-        }
-
-        RankedQuery rq = new RankedQuery(query, corpus.getCorpusSize());
-        return rq.getPostings(this.diskIndex, tokenProcessor);
     }
 
     public String stemToken(String token) {
@@ -73,6 +70,7 @@ public class BetterTermDocumentIndexer {
     public Index getIndex() {
         return this.index;
     }
+
     public ArrayList<Double> getDocWeight() {
         return this.ld;
     }
@@ -86,7 +84,6 @@ public class BetterTermDocumentIndexer {
     }
 
     private Index indexCorpus(DocumentCorpus corpus) {
-
         ld = new ArrayList<>();
 
         if (corpus == null) {
@@ -135,18 +132,11 @@ public class BetterTermDocumentIndexer {
     }
 
     private double calcWDT(double tftd) {
-
         return (1 + Math.log(tftd));
-
     }
 
-    public List<Posting> getResults(String term, String path) {
+    public List<Posting> getResults(String term, String path, boolean ranked) {
         this.diskIndex = new DiskPositionalIndex(path);
-        return runQuery(term);
-    }
-
-    public List<Posting> getRankedResults(String term, String path) {
-        this.diskIndex = new DiskPositionalIndex(path);
-        return runRankedQuery(term);
+        return runQuery(term, ranked);
     }
 }

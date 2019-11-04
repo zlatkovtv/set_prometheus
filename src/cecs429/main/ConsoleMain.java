@@ -6,6 +6,7 @@ import cecs429.index.Posting;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /*
 Please use UIMain as this is just for quickly running and debugging
@@ -67,19 +68,26 @@ public class ConsoleMain {
 
                     List<Posting> results = new ArrayList<>();
                     if (mode.startsWith("1")) {
-                        results = indexer.getResults(query, path);
+                        results = indexer.getResults(query, path, false);
+
+                        List<Integer> docIds = results.stream()
+                                .map(x -> x.getDocumentId())
+                                .collect(Collectors.toList());
+
+                        Set<Integer> set = new HashSet<>(docIds);
+                        docIds.clear();
+                        docIds.addAll(set);
+                        Collections.sort(docIds);
+
+                        for (Integer p : docIds) {
+                            System.out.println("Document ID " + p);
+                        }
                     } else if (mode.startsWith("2")) {
-                       results = indexer.getRankedResults(query, path);
-                    }
-
-//                    Set<Integer> set = new HashSet<>(docIds);
-//                    docIds.clear();
-//                    docIds.addAll(set);
-//                    Collections.sort(docIds);
-
-                    for (Posting p : results) {
-                        System.out.println("Document ID " + p.getDocumentId());
-                        System.out.println("Document Score " + p.getScore());
+                        results = indexer.getResults(query, path, true);
+                        for (Posting p : results) {
+                            System.out.println("Document ID " + p.getDocumentId());
+                            System.out.println("Document Score " + p.getScore());
+                        }
                     }
 
                     System.out.println("Total: " + results.size());

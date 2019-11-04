@@ -176,7 +176,7 @@ public class MainFrameController {
                 return;
 
             }
-            lastQueryResults = indexer.runQuery(queryInput.getText());
+            lastQueryResults = indexer.runQuery(queryInput.getText(), false);
             DocumentCorpus corpus = indexer.getCorpus();
             if (lastQueryResults.size() == 0) {
                 buildTable("0 documents found for this query");
