@@ -23,8 +23,7 @@ public class DiskPositionalIndex implements Index {
             mPostings = new RandomAccessFile(new File(path, "Postings.bin"), "r");
             mDocumentWeight = new RandomAccessFile(new File(path, "docWeights.bin"), "r");
             mVocabTable = readVocabTable(path);
-        }
-        catch (FileNotFoundException ex) {
+        } catch (FileNotFoundException ex) {
             System.out.println(ex.toString());
         }
     }
@@ -41,9 +40,8 @@ public class DiskPositionalIndex implements Index {
                 long vListPosition = mVocabTable[m * 2];
                 int termLength;
                 if (m == mVocabTable.length / 2 - 1) {
-                    termLength = (int)(mVocabList.length() - mVocabTable[m*2]);
-                }
-                else {
+                    termLength = (int) (mVocabList.length() - mVocabTable[m * 2]);
+                } else {
                     termLength = (int) (mVocabTable[(m + 1) * 2] - vListPosition);
                 }
 
@@ -52,20 +50,19 @@ public class DiskPositionalIndex implements Index {
                 byte[] buffer = new byte[termLength];
                 mVocabList.read(buffer, 0, termLength);
                 String fileTerm = new String(buffer, "ASCII");
-
+                if (fileTerm.contains("heart")) {
+                    int a = 0;
+                }
                 int compareValue = term.compareTo(fileTerm);
                 if (compareValue == 0) {
                     // found it!
                     return mVocabTable[m * 2 + 1];
-                }
-                else if (compareValue < 0) {
+                } else if (compareValue < 0) {
                     j = m - 1;
-                }
-                else {
+                } else {
                     i = m + 1;
                 }
-            }
-            catch (IOException ex) {
+            } catch (IOException ex) {
                 System.out.println(ex.toString());
             }
         }
@@ -91,11 +88,9 @@ public class DiskPositionalIndex implements Index {
             }
             tableFile.close();
             return vocabTable;
-        }
-        catch (FileNotFoundException ex) {
+        } catch (FileNotFoundException ex) {
             System.out.println(ex.toString());
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             System.out.println(ex.toString());
         }
         return null;
@@ -114,9 +109,10 @@ public class DiskPositionalIndex implements Index {
             mPostings.seek(bytePosition);
             long numberOfDocuments = readVBLong();
             int docIdGap = 0;
-            for(int i = 0; i < numberOfDocuments; i++) {
+            for (int i = 0; i < numberOfDocuments; i++) {
                 docIdGap += readVBLong();
                 Posting posting = new Posting(docIdGap, new ArrayList<>());
+                bytePosition += 8;
                 long numberOfPositions = readVBLong();
 
                 int currentPosition = 0;
@@ -143,11 +139,13 @@ public class DiskPositionalIndex implements Index {
             mPostings.seek(bytePosition);
             long numberOfDocuments = readVBLong();
             int docIdGap = 0;
-            for(int i = 0; i < numberOfDocuments; i++) {
+            for (int i = 0; i < numberOfDocuments; i++) {
                 docIdGap += readVBLong();
                 Posting posting = new Posting(docIdGap, new ArrayList<>());
+                double wdt = mPostings.readDouble();
+                posting.setScore(wdt);
                 long numberOfPositions = readVBLong();
-                // TODO remove positions after
+
                 int currentPosition = 0;
                 for (int j = 0; j < numberOfPositions; j++) {
                     currentPosition += readVBLong();

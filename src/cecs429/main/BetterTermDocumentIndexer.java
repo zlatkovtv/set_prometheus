@@ -50,11 +50,22 @@ public class BetterTermDocumentIndexer {
 
         QueryComponent qc;
 
-        if(ranked) {
-            qc = new RankedQuery(query, corpus.getCorpusSize());
-        } else {
-            qc  = queryParser.parseQuery(query);
+        qc = queryParser.parseQuery(query);
+
+
+        return qc.getPostings(this.diskIndex, tokenProcessor);
+    }
+
+    public List<ScorePosting> runScoreQuery(String query, boolean ranked) {
+        if (this.diskIndex == null) {
+            throw new RuntimeException("Index has not been built yet.");
         }
+
+        RankedQuery qc;
+
+
+        qc = new RankedQuery(query, corpus.getCorpusSize());
+
 
         return qc.getPostings(this.diskIndex, tokenProcessor);
     }
@@ -80,7 +91,8 @@ public class BetterTermDocumentIndexer {
     }
 
     private DocumentCorpus loadCorpus(Path path) {
-        return DirectoryCorpus.loadTextDirectory(path, ".txt");
+        return DirectoryCorpus.loadJsonDirectory(path);
+        //return DirectoryCorpus.loadTextDirectory(path, ".txt");
     }
 
     private Index indexCorpus(DocumentCorpus corpus) {
@@ -93,20 +105,19 @@ public class BetterTermDocumentIndexer {
         Index index = new PositionalInvertedIndex();
         kGramIndex = new KGramIndex();
         for (Document d : corpus.getDocuments()) {
-            HashMap <String,Double> documentWeight  = new HashMap <String, Double>();
+            HashMap<String, Double> documentWeight = new HashMap<String, Double>();
             TokenStream ts = new EnglishTokenStream(d.getContent());
             int position = 0;
             for (String token : ts.getTokens()) {
                 List<String> terms = this.tokenProcessor.processToken(token);
 
                 for (String term : terms) {
-
-                    if(term.isEmpty()) {
+                    if (term.isEmpty()) {
                         continue;
                     }
-                    if(!documentWeight.containsKey(term)) {
+                    if (!documentWeight.containsKey(term)) {
 
-                        documentWeight.put(term,1.0);
+                        documentWeight.put(term, 1.0);
                     } else {
                         documentWeight.put(term, documentWeight.get(term) + 1.0);
                     }
@@ -117,10 +128,10 @@ public class BetterTermDocumentIndexer {
 
                 position++;
             }
-            double sum =0;
+            double sum = 0;
             for (double tftd : documentWeight.values()) {
                 double weight = calcWDT(tftd);
-                sum += Math.pow(weight,2);
+                sum += Math.pow(weight, 2);
 
             }
             sum = Math.sqrt(sum);
@@ -138,5 +149,10 @@ public class BetterTermDocumentIndexer {
     public List<Posting> getResults(String term, String path, boolean ranked) {
         this.diskIndex = new DiskPositionalIndex(path);
         return runQuery(term, ranked);
+    }
+
+    public List<ScorePosting> getScoreResults(String term, String path, boolean ranked) {
+        this.diskIndex = new DiskPositionalIndex(path);
+        return runScoreQuery(term, ranked);
     }
 }

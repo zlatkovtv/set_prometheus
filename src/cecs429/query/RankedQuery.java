@@ -3,12 +3,13 @@ package cecs429.query;
 import cecs429.index.DiskPositionalIndex;
 import cecs429.index.Index;
 import cecs429.index.Posting;
+import cecs429.index.ScorePosting;
 import cecs429.text.TokenProcessor;
 
 import java.io.IOException;
 import java.util.*;
 
-public class RankedQuery implements QueryComponent {
+public class RankedQuery  {
     private String query;
     private int corpusSize;
 
@@ -17,8 +18,8 @@ public class RankedQuery implements QueryComponent {
         this.corpusSize = corpusSize;
     }
 
-    @Override
-    public List<Posting> getPostings(Index index, TokenProcessor tokenProcessor) {
+
+    public List<ScorePosting> getPostings(Index index, TokenProcessor tokenProcessor) {
         Map<Integer, Double> accumulators = new HashMap<>();
         try {
             String[] split = this.query.split(" ");
@@ -29,13 +30,12 @@ public class RankedQuery implements QueryComponent {
                 double accumulator = 0;
                 for (Posting p: results) {
                     int tftd = p.getPositions().size();
-                    double wdt = 1;
-                    if(tftd != 0) {
-                        wdt = 1 + Math.log(tftd);
-                    }
-
+                    double wdt = p.getScore();
+//                    if(tftd != 0) {
+//                        wdt = 1 + Math.log(tftd);
+//                    }
                     accumulator += (wdt * wqt);
-                    double ld = ((DiskPositionalIndex)index).getLd(p.getDocumentId() - 1);
+                    double ld = ((DiskPositionalIndex)index).getLd(p.getDocumentId() );
                     if(accumulator != 0) {
                         accumulator /= ld;
                     }
@@ -63,14 +63,15 @@ public class RankedQuery implements QueryComponent {
             priorityQueue.offer(pair);
         }
 
-        List<Posting> topKResults = new ArrayList<>();
+        List<ScorePosting> topKResults = new ArrayList<>();
         int counter = 0;
         while(!priorityQueue.isEmpty()) {
             if(counter >= 10) {
                 break;
             }
             Map.Entry<Integer, Double> pair = priorityQueue.poll();
-            topKResults.add(new Posting(pair.getKey(), pair.getValue()));
+            //Return two lists here.
+            topKResults.add(new ScorePosting(pair.getKey(), pair.getValue()));
             ++counter;
         }
 

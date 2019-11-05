@@ -62,18 +62,34 @@ public class DiskIndexWriter {
         DataOutputStream out = new DataOutputStream(new FileOutputStream(path + "/Postings.bin"));
         addresses.add(0l);
         for (String term : vocabulary) {
+            if(term.equals("heartland")) {
+                int a = 0;
+            }
             int docIdGap = 0;
+            int prevDocId = 0;
             List<Posting> posting = index.getPostings(term);
             //write dft how many documents this posting has
             writeVBInt(out, posting.size());
             for (Posting p : posting) {
-                docIdGap = p.getDocumentId() - docIdGap;
+
+                docIdGap = p.getDocumentId() - prevDocId;
+                prevDocId = p.getDocumentId();
+
                 writeVBInt(out, docIdGap);
+                //compute DSP here
+                int tftd = p.getPositions().size();
+                double wdt = 1.0;
+                if(tftd != 0) {
+                    wdt = 1 + Math.log(tftd);
+                }
+                out.writeDouble(wdt);
                 writeVBInt(out, p.getPositions().size());
 
                 int postingGap = 0;
+                int prevPostingId = 0;
                 for (Integer i : p.getPositions()) {
-                    postingGap = i - postingGap;
+                    postingGap = i - prevPostingId;
+                    prevPostingId = i;
                     writeVBInt(out, postingGap);
 
                 }

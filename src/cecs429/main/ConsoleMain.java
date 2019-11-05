@@ -2,6 +2,7 @@ package cecs429.main;
 
 import cecs429.index.DiskIndexWriter;
 import cecs429.index.Posting;
+import cecs429.index.ScorePosting;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -13,7 +14,8 @@ Please use UIMain as this is just for quickly running and debugging
  */
 
 public class ConsoleMain {
-    private static final String path = "C:\\Users\\Memphis\\Desktop\\Projects\\CSULB\\SET\\set_prometheus\\moby-dick\\json";
+    //private static final String path = "C:\\Users\\zack\\Documents\\set_prometheus\\moby-dick";
+    private static final String path = "C:\\Users\\zack\\Documents\\split-2";
     private static Scanner reader = new Scanner(System.in);
 
     public static void main(String[] args) throws IOException {
@@ -66,8 +68,9 @@ public class ConsoleMain {
                     System.out.print("\n\nPlease enter search term: ");
                     String query = reader.nextLine();
 
-                    List<Posting> results = new ArrayList<>();
+
                     if (mode.startsWith("1")) {
+                        List<Posting> results = new ArrayList<>();
                         results = indexer.getResults(query, path, false);
 
                         List<Integer> docIds = results.stream()
@@ -82,15 +85,19 @@ public class ConsoleMain {
                         for (Integer p : docIds) {
                             System.out.println("Document ID " + p);
                         }
+                        System.out.println("Total: " + results.size());
                     } else if (mode.startsWith("2")) {
-                        results = indexer.getResults(query, path, true);
-                        for (Posting p : results) {
+                        List<ScorePosting> results = new ArrayList<>();
+                        results = indexer.getScoreResults(query, path, true);
+                        for (ScorePosting p : results) {
                             System.out.println("Document ID " + p.getDocumentId());
-                            System.out.println("Document Score " + p.getScore());
+                            System.out.println("Document Score " + p.getAccumilator());
+
                         }
+                        System.out.println("Total: " + results.size());
                     }
 
-                    System.out.println("Total: " + results.size());
+
 
                     break;
                 default:
