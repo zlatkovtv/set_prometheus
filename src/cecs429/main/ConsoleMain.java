@@ -15,7 +15,7 @@ Please use UIMain as this is just for quickly running and debugging
 
 public class ConsoleMain {
     //private static final String path = "C:\\Users\\zack\\Documents\\set_prometheus\\moby-dick";
-    private static final String path = "C:\\Users\\zack\\Documents\\split-2";
+    private static final String path = "C:\\Users\\zack\\Downloads\\heartlands";
     private static Scanner reader = new Scanner(System.in);
 
     public static void main(String[] args) throws IOException {
@@ -71,7 +71,7 @@ public class ConsoleMain {
 
                     if (mode.startsWith("1")) {
                         List<Posting> results = new ArrayList<>();
-                        results = indexer.getResults(query, path, false);
+                        results = indexer.getResults(query, path);
 
                         List<Integer> docIds = results.stream()
                                 .map(x -> x.getDocumentId())
@@ -88,7 +88,7 @@ public class ConsoleMain {
                         System.out.println("Total: " + results.size());
                     } else if (mode.startsWith("2")) {
                         List<ScorePosting> results = new ArrayList<>();
-                        results = indexer.getScoreResults(query, path, true);
+                        results = indexer.getScoreResults(query, path);
                         for (ScorePosting p : results) {
                             System.out.println("Document ID " + p.getDocumentId());
                             System.out.println("Document Score " + p.getAccumilator());

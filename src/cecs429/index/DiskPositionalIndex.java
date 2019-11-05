@@ -50,9 +50,6 @@ public class DiskPositionalIndex implements Index {
                 byte[] buffer = new byte[termLength];
                 mVocabList.read(buffer, 0, termLength);
                 String fileTerm = new String(buffer, "ASCII");
-                if (fileTerm.contains("heart")) {
-                    int a = 0;
-                }
                 int compareValue = term.compareTo(fileTerm);
                 if (compareValue == 0) {
                     // found it!
@@ -112,7 +109,7 @@ public class DiskPositionalIndex implements Index {
             for (int i = 0; i < numberOfDocuments; i++) {
                 docIdGap += readVBLong();
                 Posting posting = new Posting(docIdGap, new ArrayList<>());
-                bytePosition += 8;
+                double wdt = mPostings.readDouble();
                 long numberOfPositions = readVBLong();
 
                 int currentPosition = 0;

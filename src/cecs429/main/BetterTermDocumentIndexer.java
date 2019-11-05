@@ -43,7 +43,7 @@ public class BetterTermDocumentIndexer {
         return this.corpus;
     }
 
-    public List<Posting> runQuery(String query, boolean ranked) {
+    public List<Posting> runQuery(String query) {
         if (this.diskIndex == null) {
             throw new RuntimeException("Index has not been built yet.");
         }
@@ -56,7 +56,7 @@ public class BetterTermDocumentIndexer {
         return qc.getPostings(this.diskIndex, tokenProcessor);
     }
 
-    public List<ScorePosting> runScoreQuery(String query, boolean ranked) {
+    public List<ScorePosting> runScoreQuery(String query) {
         if (this.diskIndex == null) {
             throw new RuntimeException("Index has not been built yet.");
         }
@@ -146,13 +146,13 @@ public class BetterTermDocumentIndexer {
         return (1 + Math.log(tftd));
     }
 
-    public List<Posting> getResults(String term, String path, boolean ranked) {
+    public List<Posting> getResults(String term, String path) {
         this.diskIndex = new DiskPositionalIndex(path);
-        return runQuery(term, ranked);
+        return runQuery(term);
     }
 
-    public List<ScorePosting> getScoreResults(String term, String path, boolean ranked) {
+    public List<ScorePosting> getScoreResults(String term, String path) {
         this.diskIndex = new DiskPositionalIndex(path);
-        return runScoreQuery(term, ranked);
+        return runScoreQuery(term);
     }
 }

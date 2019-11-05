@@ -11,7 +11,5 @@ Milestone 1 Options:
 
 MILESTONE 2
 
-TODO remove positions if Neil requires that.  - SEE VARBYTE REQUIREMENT <- This is done since we are doing VBE.
-TODO Fix UI, as we screwed up ordering of normal query results - FIXED CONSOLE MAIN, TODO - UI MAIN
 TODO Verify, that scores are correct
-TODO DSP Index - The score of Posting is currently the accumulator value. It should be wdt, as per the DSP requirement. We have to return acc values outside of the Posting object
+TODO We are getting a square for the big corpus (heartlands ) and thus getting a -1 for the boolean search. FIX!!

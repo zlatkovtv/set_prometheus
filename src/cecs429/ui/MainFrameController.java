@@ -1,7 +1,9 @@
 package cecs429.ui;
 
 import cecs429.documents.DocumentCorpus;
+import cecs429.index.DiskIndexWriter;
 import cecs429.index.Posting;
+import cecs429.index.ScorePosting;
 import cecs429.ui.views.MainFrame;
 import cecs429.ui.views.TextFrame;
 import cecs429.main.BetterTermDocumentIndexer;
@@ -14,9 +16,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MainFrameController {
     private final int VOCABULARY_LIMIT = 1000;
@@ -26,20 +32,25 @@ public class MainFrameController {
     private JButton stemTokenButton;
     private JButton printVocabButton;
     private JButton quitButton;
+    private JButton buildButton;
     private JTable console;
     private JTextField queryInput;
     private JButton queryButton;
     private JScrollPane scrollPane;
     private JLabel indexTimer;
+    private JComboBox comboBox;
 
     private BetterTermDocumentIndexer indexer;
     private List<Posting> lastQueryResults;
+    private List<ScorePosting> lastScoredQueryResults;
+    private boolean isLastQueryScored;
+    private Path path;
 
     public MainFrameController(BetterTermDocumentIndexer indexer) {
         this.indexer = indexer;
         initComponents();
         initListeners();
-        chooseFolderButton.doClick();
+//        chooseFolderButton.doClick();
     }
 
     private void initComponents() {
@@ -57,6 +68,9 @@ public class MainFrameController {
         queryButton = mainFrame.getQueryButton();
         scrollPane = mainFrame.getScrollPane();
         indexTimer = mainFrame.getIndexTimer();
+        comboBox = mainFrame.getComboBox1();
+        buildButton = mainFrame.getButton1();
+
         setButtonsEnabled(false);
     }
 
@@ -66,6 +80,8 @@ public class MainFrameController {
         printVocabButton.addActionListener(new VocabBtnListener());
         quitButton.addActionListener(new QuitBtnListener());
         queryButton.addActionListener(new QueryBtnListener());
+        comboBox.addActionListener(cbActionListener);
+        buildButton.addActionListener(new BuildNtmListener());
         console.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
@@ -83,7 +99,13 @@ public class MainFrameController {
     }
 
     private void openDocumentContent(int index) throws IOException {
-        int selectedDocId = lastQueryResults.get(index).getDocumentId();
+        int selectedDocId;
+        if(isLastQueryScored) {
+            selectedDocId = lastScoredQueryResults.get(index).getDocumentId();
+        } else {
+            selectedDocId = lastQueryResults.get(index).getDocumentId();
+        }
+
         BufferedReader documentContent = new BufferedReader(indexer.getCorpus().getDocument(selectedDocId).getContent());
         StringBuilder sb = new StringBuilder();
         String line = null;
@@ -115,8 +137,11 @@ public class MainFrameController {
 
         try {
             setButtonsEnabled(false);
-            long ranFor = indexer.runIndexer();
-            indexTimer.setText("Indexing took " + ranFor + " seconds.");
+//            this.path = chooser.getCurrentDirectory().getAbsolutePath();
+            this.path = chooser.getSelectedFile().toPath();
+            indexer = new BetterTermDocumentIndexer(this.path);
+//            long ranFor = indexer.runIndexer();
+//            indexTimer.setText("Indexing took " + ranFor + " seconds.");
             setButtonsEnabled(true);
         } catch (Exception ex) {
             setButtonsEnabled(false);
@@ -144,6 +169,7 @@ public class MainFrameController {
             strings.add("Stem: " + stem);
             buildTable(strings);
         }
+
     }
 
     private class VocabBtnListener implements ActionListener {
@@ -167,6 +193,10 @@ public class MainFrameController {
         }
     }
 
+    private int getDropDownValue() {
+        return this.comboBox.getSelectedIndex();
+    }
+
     private class QueryBtnListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -174,20 +204,42 @@ public class MainFrameController {
             if (queryInput.getText().isEmpty()) {
                 buildTable("Please enter a valid query");
                 return;
-
             }
-            lastQueryResults = indexer.runQuery(queryInput.getText(), false);
+
+            int dropDownValue = getDropDownValue();
             DocumentCorpus corpus = indexer.getCorpus();
-            if (lastQueryResults.size() == 0) {
-                buildTable("0 documents found for this query");
-                return;
+            if(dropDownValue == 0) {
+                isLastQueryScored = false;
+                lastQueryResults = indexer.getResults(queryInput.getText(), path.toAbsolutePath().toString());
+
+                if (lastQueryResults.size() == 0) {
+                    buildTable("0 documents found for this query");
+                    return;
+                }
+
+                for (int i = 0; i < lastQueryResults.size(); i++) {
+                    termsStrings.add("Document " + (i + 1) + ": " + corpus.getDocument(lastQueryResults.get(i).getDocumentId()).getTitle());
+                }
+
+                termsStrings.add("Total number of documents: " + lastQueryResults.size());
+            } else {
+                isLastQueryScored = true;
+                lastScoredQueryResults = indexer.getScoreResults(queryInput.getText(), path.toAbsolutePath().toString());
+
+                if (lastScoredQueryResults.size() == 0) {
+                    buildTable("0 documents found for this query");
+                    return;
+                }
+
+                for (int i = 0; i < lastScoredQueryResults.size(); i++) {
+                    termsStrings.add("Document " + (i + 1) + ": "
+                            + corpus.getDocument(lastScoredQueryResults.get(i).getDocumentId()).getTitle()
+                            + ", Score: " + lastScoredQueryResults.get(i).getAccumilator());
+                }
+
+                termsStrings.add("Total number of documents: " + lastScoredQueryResults.size());
             }
 
-            for (int i = 0; i < lastQueryResults.size(); i++) {
-                termsStrings.add("Document " + (i + 1) + ": " + corpus.getDocument(lastQueryResults.get(i).getDocumentId()).getTitle());
-            }
-
-            termsStrings.add("Total number of documents: " + lastQueryResults.size());
             buildTable(termsStrings);
         }
     }
@@ -219,5 +271,26 @@ public class MainFrameController {
         JScrollBar vertical = scrollPane.getVerticalScrollBar();
         scrollPane.validate();
         vertical.setValue( vertical.getMaximum() );
+    }
+
+    ActionListener cbActionListener = new ActionListener() {//add actionlistner to listen for change
+        @Override
+        public void actionPerformed(ActionEvent e) {
+
+        }
+    };
+
+    private class BuildNtmListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent actionEvent) {
+
+            try {
+                indexer.runIndexer();
+                DiskIndexWriter writer = new DiskIndexWriter(indexer.getIndex(), path.toAbsolutePath().toString(), indexer.getDocWeight());
+                writer.writeIndex();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

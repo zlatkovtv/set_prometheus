@@ -89,8 +89,8 @@ public class DiskIndexWriter {
                 int prevPostingId = 0;
                 for (Integer i : p.getPositions()) {
                     postingGap = i - prevPostingId;
-                    prevPostingId = i;
                     writeVBInt(out, postingGap);
+                    prevPostingId = i;
 
                 }
             }

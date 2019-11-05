@@ -1,6 +1,7 @@
 package cecs429.ui.views;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class MainFrame extends JFrame {
     private JPanel mainWindow;
@@ -13,6 +14,8 @@ public class MainFrame extends JFrame {
     private JButton queryButton;
     private JLabel indexTimer;
     private JScrollPane scrollPane;
+    private JButton button1;
+    private JComboBox comboBox1;
 
     public JLabel getIndexTimer() {
         return indexTimer;
@@ -50,9 +53,18 @@ public class MainFrame extends JFrame {
         return scrollPane;
     }
 
+    public JComboBox getComboBox1() {return comboBox1; }
+
+    public JButton getButton1() {return button1; }
+
     public MainFrame() {
-        setSize(800, 650);
+        setSize(1000, 850);
         setContentPane(mainWindow);
         setLocationRelativeTo(null);
+    }
+
+    private void createUIComponents() {
+        String[] queries = {"Boolean Query", "Ranked Query"};
+        comboBox1 = new JComboBox(queries);
     }
 }
