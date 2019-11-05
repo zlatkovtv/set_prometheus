@@ -49,7 +49,7 @@ public class DiskPositionalIndex implements Index {
 
                 byte[] buffer = new byte[termLength];
                 mVocabList.read(buffer, 0, termLength);
-                String fileTerm = new String(buffer, "ASCII");
+                String fileTerm = new String(buffer, "UTF-8");
                 int compareValue = term.compareTo(fileTerm);
                 if (compareValue == 0) {
                     // found it!

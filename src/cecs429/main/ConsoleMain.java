@@ -15,7 +15,7 @@ Please use UIMain as this is just for quickly running and debugging
 
 public class ConsoleMain {
     //private static final String path = "C:\\Users\\zack\\Documents\\set_prometheus\\moby-dick";
-    private static final String path = "C:\\Users\\zack\\Downloads\\heartlands";
+    private static final String path = "C:\\Users\\Memphis\\Desktop\\Projects\\CSULB\\SET\\Homework3\\assets\\split";
     private static Scanner reader = new Scanner(System.in);
 
     public static void main(String[] args) throws IOException {

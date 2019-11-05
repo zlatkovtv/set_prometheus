@@ -115,9 +115,9 @@ public class DiskIndexWriter {
         DataOutputStream out = new DataOutputStream(
                 new FileOutputStream(path + "/Vocab.bin"));
         for (String term:vocabulary) {
-            out.writeBytes(term);
+            out.write(term.getBytes("UTF-8"), 0, term.getBytes().length);
             diskVocab.add(length);
-            length += term.length();
+            length += term.getBytes("UTF-8").length;
         }
 
         out.close();
