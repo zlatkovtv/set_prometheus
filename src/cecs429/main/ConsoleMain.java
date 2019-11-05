@@ -14,34 +14,10 @@ Please use UIMain as this is just for quickly running and debugging
  */
 
 public class ConsoleMain {
-    //private static final String path = "C:\\Users\\zack\\Documents\\set_prometheus\\moby-dick";
-    private static final String path = "C:\\Users\\Memphis\\Desktop\\Projects\\CSULB\\SET\\Homework3\\assets\\split";
+    private static final String path = "C:\\Users\\Memphis\\Desktop\\Projects\\CSULB\\SET\\Homework3\\assets\\h-partial";
     private static Scanner reader = new Scanner(System.in);
 
     public static void main(String[] args) throws IOException {
-//        BetterTermDocumentIndexer indexer = new BetterTermDocumentIndexer();
-//        indexer.runIndexer(Paths.get(path).toAbsolutePath());
-//        String input;
-//        while (true) {
-//            System.out.printf("");
-//            input = reader.nextLine().toLowerCase();
-//            switch (input) {
-//                case "quit":
-//                    System.exit(0);
-//                    break;
-//                default:
-//                    indexer.selectQuery()
-//                    List<Integer> results = indexer.runQuery(input);
-//                    for (Integer docId : results) {
-//                        System.out.println("Document ID " + docId);
-//                    }
-//
-//                    System.out.println("Total: " + results.size());
-//                    break;
-//            }
-//        }
-//
-
         System.out.println(":q - To quit application");
         System.out.println("1. Build index.");
         System.out.println("2. Query index.");
@@ -68,7 +44,6 @@ public class ConsoleMain {
                     System.out.print("\n\nPlease enter search term: ");
                     String query = reader.nextLine();
 
-
                     if (mode.startsWith("1")) {
                         List<Posting> results = new ArrayList<>();
                         results = indexer.getResults(query, path);
@@ -85,19 +60,18 @@ public class ConsoleMain {
                         for (Integer p : docIds) {
                             System.out.println("Document ID " + p);
                         }
+
                         System.out.println("Total: " + results.size());
                     } else if (mode.startsWith("2")) {
                         List<ScorePosting> results = new ArrayList<>();
                         results = indexer.getScoreResults(query, path);
                         for (ScorePosting p : results) {
                             System.out.println("Document ID " + p.getDocumentId());
-                            System.out.println("Document Score " + p.getAccumilator());
-
+                            System.out.println("Document Score " + p.getAccumulator());
                         }
+
                         System.out.println("Total: " + results.size());
                     }
-
-
 
                     break;
                 default:

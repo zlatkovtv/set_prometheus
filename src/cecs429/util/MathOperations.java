@@ -1,6 +1,9 @@
 package cecs429.util;
 
-public class mathOperations {
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
+public class MathOperations {
 
     public static int editDist(String str1, String str2, int strlen1, int strlen2) {
         // Imagine this as being our grid when we do it on paper
@@ -43,4 +46,9 @@ public class mathOperations {
         else return z;
     }
 
+    public static double roundUp(double input) {
+        BigDecimal bd = new BigDecimal(Double.toString(input));
+        bd = bd.setScale(5, RoundingMode.HALF_UP);
+        return bd.doubleValue();
+    }
 }

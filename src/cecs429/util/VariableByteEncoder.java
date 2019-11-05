@@ -9,13 +9,13 @@ public class VariableByteEncoder {
         List<Long> bytestream = new ArrayList<Long>();
         long previousNumber = 0;
         for (long each : numbers) {
-            bytestream.addAll(VBEncodenumber(each - previousNumber));
+            bytestream.addAll(encode(each - previousNumber));
             previousNumber = each;
         }
         return bytestream;
     }
 
-    public static List<Long> VBEncodenumber(long n) {
+    public static List<Long> encode(long n) {
         List<Long> bytes = new ArrayList<Long>(5);
         while (true) {
             bytes.add(0, n % 128);
@@ -28,7 +28,7 @@ public class VariableByteEncoder {
 
 
 
-    public static List<Long> VBDecode(List<Long> bytestream) {
+    public static List<Long> decode(List<Long> bytestream) {
         long n = 0;
         long prevNum = 0;
         List<Long> numbers = new ArrayList<Long>();

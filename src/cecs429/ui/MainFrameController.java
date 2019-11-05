@@ -16,13 +16,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class MainFrameController {
     private final int VOCABULARY_LIMIT = 1000;
@@ -234,7 +231,7 @@ public class MainFrameController {
                 for (int i = 0; i < lastScoredQueryResults.size(); i++) {
                     termsStrings.add("Document " + (i + 1) + ": "
                             + corpus.getDocument(lastScoredQueryResults.get(i).getDocumentId()).getTitle()
-                            + ", Score: " + lastScoredQueryResults.get(i).getAccumilator());
+                            + ", Score: " + lastScoredQueryResults.get(i).getAccumulator());
                 }
 
                 termsStrings.add("Total number of documents: " + lastScoredQueryResults.size());

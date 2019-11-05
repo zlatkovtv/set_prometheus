@@ -11,7 +11,10 @@ import cecs429.text.AdvancedTokenProcessor;
 import cecs429.text.EnglishTokenStream;
 import cecs429.text.Stemmer;
 import cecs429.text.TokenStream;
+import cecs429.util.MathOperations;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -92,7 +95,7 @@ public class BetterTermDocumentIndexer {
 
     private DocumentCorpus loadCorpus(Path path) {
         return DirectoryCorpus.loadJsonDirectory(path);
-        //return DirectoryCorpus.loadTextDirectory(path, ".txt");
+//        return DirectoryCorpus.loadTextDirectory(path, ".txt");
     }
 
     private Index indexCorpus(DocumentCorpus corpus) {
@@ -131,6 +134,7 @@ public class BetterTermDocumentIndexer {
             double sum = 0;
             for (double tftd : documentWeight.values()) {
                 double weight = calcWDT(tftd);
+                weight = MathOperations.roundUp(weight);
                 sum += Math.pow(weight, 2);
 
             }

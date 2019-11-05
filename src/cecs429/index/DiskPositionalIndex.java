@@ -6,7 +6,6 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class DiskPositionalIndex implements Index {
     private String mPath;
@@ -173,7 +172,7 @@ public class DiskPositionalIndex implements Index {
         } while (encode < 128);
 
         // Genius way of decoding.
-        return VariableByteEncoder.VBDecode(encoded).get(0);
+        return VariableByteEncoder.decode(encoded).get(0);
     }
 
     public double getLd(int bytePosition) throws IOException {

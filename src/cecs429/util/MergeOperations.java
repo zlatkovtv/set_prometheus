@@ -130,7 +130,7 @@ public class MergeOperations {
         return tmp;
 
     }
-    public static List<Posting> NotMerge(List<Posting> pList1, List<Posting> pList2) {
+    public static List<Posting> notMerge(List<Posting> pList1, List<Posting> pList2) {
         int itr = 0;
         int jtr = 0;
         List<Posting> tmp = new ArrayList<>(); //Temporary list to hold resultes

@@ -5,8 +5,11 @@ import cecs429.index.Index;
 import cecs429.index.Posting;
 import cecs429.index.ScorePosting;
 import cecs429.text.TokenProcessor;
+import cecs429.util.MathOperations;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 public class RankedQuery  {
@@ -31,14 +34,13 @@ public class RankedQuery  {
                 for (Posting p: results) {
                     int tftd = p.getPositions().size();
                     double wdt = p.getScore();
-//                    if(tftd != 0) {
-//                        wdt = 1 + Math.log(tftd);
-//                    }
                     accumulator += (wdt * wqt);
                     double ld = ((DiskPositionalIndex)index).getLd(p.getDocumentId() );
                     if(accumulator != 0) {
                         accumulator /= ld;
                     }
+
+                    accumulator = MathOperations.roundUp(accumulator);
 
                     if(accumulators.containsKey(p.getDocumentId())) {
                         accumulators.put(p.getDocumentId(), (accumulators.get(p.getDocumentId()) + accumulator));

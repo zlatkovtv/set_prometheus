@@ -54,10 +54,10 @@ public class AndQuery implements QueryComponent {
         boolean checker = mComponents.get(0) instanceof NotQuery;
         for (int i = 1; i < mComponents.size(); i++) {
             if(checker) {
-                result = MergeOperations.NotMerge(mComponents.get(i).getPostings(index, processor), result);
+                result = MergeOperations.notMerge(mComponents.get(i).getPostings(index, processor), result);
             }
             else if (mComponents.get(i) instanceof NotQuery)  {
-                result = MergeOperations.NotMerge(result, mComponents.get(i).getPostings(index, processor));
+                result = MergeOperations.notMerge(result, mComponents.get(i).getPostings(index, processor));
             }
             else {
                 result = MergeOperations.intersectMerge(result, mComponents.get(i).getPostings(index, processor));

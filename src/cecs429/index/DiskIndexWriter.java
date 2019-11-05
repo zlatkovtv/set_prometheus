@@ -3,8 +3,8 @@ package cecs429.index;
 import cecs429.util.VariableByteEncoder;
 
 import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.file.Path;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -42,39 +42,35 @@ public class DiskIndexWriter {
             System.out.println("Finished creating postings.bin");
             createVocabBin();
             System.out.println("Finished creating vocab.bin");
-            //vocabTable.bin writing two lomg values
             createVocabTableBin();
             System.out.println("Finished creating table.bin");
             createdocWeightBin();
             System.out.println("Finished creating docWeight.bin");
         }
-
     }
+
     private void createdocWeightBin() throws IOException {
         DataOutputStream out = new DataOutputStream(new FileOutputStream(path + "/docWeights.bin"));
         for (double weight: ld ) {
             out.writeDouble(weight);
         }
+
         out.close();
     }
+
     private List<Long> createPostingBin() throws IOException {
         List<Long> addresses = new ArrayList<>();
         DataOutputStream out = new DataOutputStream(new FileOutputStream(path + "/Postings.bin"));
         addresses.add(0l);
         for (String term : vocabulary) {
-            if(term.equals("heartland")) {
-                int a = 0;
-            }
             int docIdGap = 0;
             int prevDocId = 0;
             List<Posting> posting = index.getPostings(term);
             //write dft how many documents this posting has
             writeVBInt(out, posting.size());
             for (Posting p : posting) {
-
                 docIdGap = p.getDocumentId() - prevDocId;
                 prevDocId = p.getDocumentId();
-
                 writeVBInt(out, docIdGap);
                 //compute DSP here
                 int tftd = p.getPositions().size();
@@ -82,18 +78,19 @@ public class DiskIndexWriter {
                 if(tftd != 0) {
                     wdt = 1 + Math.log(tftd);
                 }
+
+                wdt = roundUp(wdt);
                 out.writeDouble(wdt);
                 writeVBInt(out, p.getPositions().size());
-
                 int postingGap = 0;
                 int prevPostingId = 0;
                 for (Integer i : p.getPositions()) {
                     postingGap = i - prevPostingId;
                     writeVBInt(out, postingGap);
                     prevPostingId = i;
-
                 }
             }
+
             addresses.add(Long.valueOf(out.size()));
         }
 
@@ -102,7 +99,7 @@ public class DiskIndexWriter {
     }
 
     private void writeVBInt(DataOutputStream out, int number) throws IOException {
-        List<Long> bytes = VariableByteEncoder.VBEncodenumber(Long.valueOf(number));
+        List<Long> bytes = VariableByteEncoder.encode(Long.valueOf(number));
         for (long b: bytes) {
             byte[] ba = new byte[1];
             ba[0] = (byte) b;
@@ -127,12 +124,17 @@ public class DiskIndexWriter {
         DataOutputStream out = new DataOutputStream(new FileOutputStream(path + "/VocabTable.bin"));
         Iterator<Long> posting = postings.iterator();
         Iterator<Long> diskIterator = diskVocab.iterator();
-
         while(posting.hasNext() && diskIterator.hasNext()) {
             out.writeLong(diskIterator.next());
             out.writeLong(posting.next());
         }
 
         out.close();
+    }
+
+    private double roundUp(double input) {
+        BigDecimal bd = new BigDecimal(Double.toString(input));
+        bd = bd.setScale(5, RoundingMode.HALF_UP);
+        return bd.doubleValue();
     }
 }
