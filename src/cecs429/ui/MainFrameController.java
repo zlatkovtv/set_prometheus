@@ -42,6 +42,7 @@ public class MainFrameController {
     private List<ScorePosting> lastScoredQueryResults;
     private boolean isLastQueryScored;
     private Path path;
+    private DocumentCorpus corpus;
 
     public MainFrameController(BetterTermDocumentIndexer indexer) {
         this.indexer = indexer;
@@ -137,6 +138,7 @@ public class MainFrameController {
 //            this.path = chooser.getCurrentDirectory().getAbsolutePath();
             this.path = chooser.getSelectedFile().toPath();
             indexer = new BetterTermDocumentIndexer(this.path);
+            this.corpus = indexer.getCorpus();
 //            long ranFor = indexer.runIndexer();
 //            indexTimer.setText("Indexing took " + ranFor + " seconds.");
             setButtonsEnabled(true);
@@ -204,7 +206,7 @@ public class MainFrameController {
             }
 
             int dropDownValue = getDropDownValue();
-            DocumentCorpus corpus = indexer.getCorpus();
+
             if(dropDownValue == 0) {
                 isLastQueryScored = false;
                 lastQueryResults = indexer.getResults(queryInput.getText(), path.toAbsolutePath().toString());

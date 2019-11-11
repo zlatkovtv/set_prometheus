@@ -14,7 +14,7 @@ Please use UIMain as this is just for quickly running and debugging
  */
 
 public class ConsoleMain {
-    private static final String path = "C:\\Users\\Memphis\\Desktop\\Projects\\CSULB\\SET\\Homework3\\assets\\h-partial";
+    private static final String path = "C:\\Users\\Memphis\\Desktop\\Projects\\CSULB\\SET\\Homework3\\assets\\split";
     private static Scanner reader = new Scanner(System.in);
 
     public static void main(String[] args) throws IOException {
@@ -61,7 +61,7 @@ public class ConsoleMain {
                             System.out.println("Document ID " + p);
                         }
 
-                        System.out.println("Total: " + results.size());
+                        System.out.println("Total: " + docIds.size());
                     } else if (mode.startsWith("2")) {
                         List<ScorePosting> results = new ArrayList<>();
                         results = indexer.getScoreResults(query, path);

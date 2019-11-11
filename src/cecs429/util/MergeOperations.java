@@ -31,26 +31,33 @@ public class MergeOperations {
                     while (jp < list2Positions.size()) {
                         int difference = (list2Positions.get(jp) - list1Positions.get(ip));
                         if ((difference <= distance) && (difference > 0)) {
+                            tempList.add(list1Positions.get(ip));
                             tempList.add(list2Positions.get(jp));
+                            break;
 
-                        } else if (list2Positions.get(jp) > list1Positions.get(ip)) {
+                        } else if ( (list2Positions.get(jp) - list1Positions.get(ip)) > distance) {
                             break;
                         }
                         ++jp;
 
                     }
 
-                    while (tempList.size() > 0 && (list1Positions.get(ip) - tempList.get(0)) >= distance) {
-                        tempList.remove(0);
-                    }
-                    for (Integer ps : tempList) {
-                        ArrayList<Integer> tmp2 = new ArrayList<>();
-                        tmp2.add(list1Positions.get(ip));
-                        tmp2.add(ps);
-                        Posting p = new Posting(list1.get(itr).getDocumentId(), tmp2);
+//                    while (tempList.size() > 0 && (list1Positions.get(ip) - tempList.get(0)) >= distance) {
+////                        tempList.remove(0);
+////                    }
+//                    for (Integer ps : tempList) {
+////                        ArrayList<Integer> tmp2 = new ArrayList<>();
+////                        //tmp2.add(list1Positions.get(ip));
+////                        tmp2.add(ps);
+////                        Posting p = new Posting(list1.get(itr).getDocumentId(), tmp2);
+////                        answer.add(p);
+////
+////                    }
+                    if(tempList.size() != 0) {
+                        Posting p = new Posting(list1.get(itr).getDocumentId(), tempList);
                         answer.add(p);
-
                     }
+
                     ++ip;
 
                 }
