@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MainFrameController {
     private final int VOCABULARY_LIMIT = 1000;
@@ -139,6 +140,7 @@ public class MainFrameController {
             this.path = chooser.getSelectedFile().toPath();
             indexer = new BetterTermDocumentIndexer(this.path);
             this.corpus = indexer.getCorpus();
+            this.corpus.getDocuments();
 //            long ranFor = indexer.runIndexer();
 //            indexTimer.setText("Indexing took " + ranFor + " seconds.");
             setButtonsEnabled(true);
@@ -209,18 +211,31 @@ public class MainFrameController {
 
             if(dropDownValue == 0) {
                 isLastQueryScored = false;
-                lastQueryResults = indexer.getResults(queryInput.getText(), path.toAbsolutePath().toString());
+                try {
+                    lastQueryResults = indexer.getResults(queryInput.getText(), path.toAbsolutePath().toString());
+                    List<Integer> docIds = lastQueryResults.stream()
+                            .map(x -> x.getDocumentId())
+                            .collect(Collectors.toList());
 
-                if (lastQueryResults.size() == 0) {
-                    buildTable("0 documents found for this query");
+                    Set<Integer> set = new HashSet<>(docIds);
+                    docIds.clear();
+                    docIds.addAll(set);
+                    Collections.sort(docIds);
+
+                    if (lastQueryResults.size() == 0) {
+                        buildTable("0 documents found for this query");
+                        return;
+                    }
+
+                    for (int i = 0; i < docIds.size(); i++) {
+                        termsStrings.add("Document " + (i + 1) + ": " + corpus.getDocument(docIds.get(i)).getTitle());
+                    }
+
+                    termsStrings.add("Total number of documents: " + docIds.size());
+                } catch(Exception ex) {
+                    buildTable(ex.getMessage());
                     return;
                 }
-
-                for (int i = 0; i < lastQueryResults.size(); i++) {
-                    termsStrings.add("Document " + (i + 1) + ": " + corpus.getDocument(lastQueryResults.get(i).getDocumentId()).getTitle());
-                }
-
-                termsStrings.add("Total number of documents: " + lastQueryResults.size());
             } else {
                 isLastQueryScored = true;
                 lastScoredQueryResults = indexer.getScoreResults(queryInput.getText(), path.toAbsolutePath().toString());

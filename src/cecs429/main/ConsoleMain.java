@@ -46,22 +46,26 @@ public class ConsoleMain {
 
                     if (mode.startsWith("1")) {
                         List<Posting> results = new ArrayList<>();
-                        results = indexer.getResults(query, path);
+                        try {
+                            results = indexer.getResults(query, path);
 
-                        List<Integer> docIds = results.stream()
-                                .map(x -> x.getDocumentId())
-                                .collect(Collectors.toList());
+                            List<Integer> docIds = results.stream()
+                                    .map(x -> x.getDocumentId())
+                                    .collect(Collectors.toList());
 
-                        Set<Integer> set = new HashSet<>(docIds);
-                        docIds.clear();
-                        docIds.addAll(set);
-                        Collections.sort(docIds);
+                            Set<Integer> set = new HashSet<>(docIds);
+                            docIds.clear();
+                            docIds.addAll(set);
+                            Collections.sort(docIds);
 
-                        for (Integer p : docIds) {
-                            System.out.println("Document ID " + p);
+                            for (Integer p : docIds) {
+                                System.out.println("Document ID " + p);
+                            }
+
+                            System.out.println("Total: " + docIds.size());
+                        } catch(Exception e) {
+                            System.out.println(e.getMessage());
                         }
-
-                        System.out.println("Total: " + docIds.size());
                     } else if (mode.startsWith("2")) {
                         List<ScorePosting> results = new ArrayList<>();
                         results = indexer.getScoreResults(query, path);

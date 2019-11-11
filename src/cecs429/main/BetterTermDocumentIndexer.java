@@ -51,6 +51,10 @@ public class BetterTermDocumentIndexer {
             throw new RuntimeException("Index has not been built yet.");
         }
 
+        if(query.contains("*") && this.kGramIndex == null) {
+            throw new RuntimeException("Please build a new corpus and query in the same instance to run wildcard queries.");
+        }
+
         QueryComponent qc;
 
         qc = queryParser.parseQuery(query);
