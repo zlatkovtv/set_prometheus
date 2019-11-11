@@ -69,8 +69,6 @@ public class MainFrameController {
         indexTimer = mainFrame.getIndexTimer();
         comboBox = mainFrame.getComboBox1();
         buildButton = mainFrame.getButton1();
-
-        setButtonsEnabled(false);
     }
 
     private void initListeners() {
@@ -135,25 +133,24 @@ public class MainFrameController {
         }
 
         try {
-            setButtonsEnabled(false);
-//            this.path = chooser.getCurrentDirectory().getAbsolutePath();
             this.path = chooser.getSelectedFile().toPath();
             indexer = new BetterTermDocumentIndexer(this.path);
             this.corpus = indexer.getCorpus();
             this.corpus.getDocuments();
-//            long ranFor = indexer.runIndexer();
-//            indexTimer.setText("Indexing took " + ranFor + " seconds.");
-            setButtonsEnabled(true);
         } catch (Exception ex) {
-            setButtonsEnabled(false);
-            indexTimer.setText("");
+            buildTable(ex.getMessage());
         }
     }
 
-    private void setButtonsEnabled(boolean state) {
-        printVocabButton.setEnabled(state);
-        queryButton.setEnabled(state);
-        queryInput.setEditable(state);
+    private void setButtonsEnabled(boolean interactionActive) {
+        printVocabButton.setEnabled(interactionActive);
+        queryButton.setEnabled(interactionActive);
+        queryInput.setEditable(interactionActive);
+        if(!interactionActive) {
+            buildTable("Indexing corpus...");
+        } else {
+            buildTable("Corpus indexed successfully.");
+        }
     }
 
     private class StemBtnListener implements ActionListener {
@@ -297,14 +294,29 @@ public class MainFrameController {
     private class BuildNtmListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
+            setButtonsEnabled(false);
 
-            try {
-                indexer.runIndexer();
-                DiskIndexWriter writer = new DiskIndexWriter(indexer.getIndex(), path.toAbsolutePath().toString(), indexer.getDocWeight());
-                writer.writeIndex();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    try {
+                        indexer.runIndexer();
+                        DiskIndexWriter writer = new DiskIndexWriter(indexer.getIndex(), path.toAbsolutePath().toString(), indexer.getDocWeight());
+                        writer.writeIndex();
+                        setButtonsEnabled(true);
+                    } catch (IOException e) {
+                        buildTable(e.getMessage());
+                    }
+                }
+            });
+//                new Thread(() ->{
+//                    try {
+//                        indexer.runIndexer();
+//                        DiskIndexWriter writer = new DiskIndexWriter(indexer.getIndex(), path.toAbsolutePath().toString(), indexer.getDocWeight());
+//                        writer.writeIndex();
+//                    } catch (IOException e) {
+//                        buildTable(e.getMessage());
+//                    }
+//                }){{start();}}.join();
         }
     }
 }
