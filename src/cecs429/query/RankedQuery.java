@@ -29,7 +29,7 @@ public class RankedQuery  {
             for (String term: split) {
                 term = tokenProcessor.processQueryToken(term);
                 List<Posting> results = index.getRankedPostings(term);
-                double wqt = Math.log(1 + (corpusSize / results.size()));
+                double wqt = Math.log(1 + ((double) corpusSize / results.size()));
                 double accumulator = 0;
                 for (Posting p: results) {
                     int tftd = p.getPositions().size();

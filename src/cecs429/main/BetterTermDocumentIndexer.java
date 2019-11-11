@@ -134,7 +134,7 @@ public class BetterTermDocumentIndexer {
             double sum = 0;
             for (double tftd : documentWeight.values()) {
                 double weight = calcWDT(tftd);
-                weight = MathOperations.roundUp(weight);
+                weight = weight;
                 sum += Math.pow(weight, 2);
 
             }

@@ -100,7 +100,11 @@ public class DiskPositionalIndex implements Index {
     public List<Posting> getPostings(String term) {
         long bytePosition = binarySearchVocabulary(term);
         List<Posting> postings = new ArrayList<>();
-
+        if(bytePosition < 0) {
+            System.out.println("Query term not in vocabulary.");
+            return postings;
+        }
+        
         try {
             mPostings.seek(bytePosition);
             long numberOfDocuments = readVBLong();
@@ -130,6 +134,10 @@ public class DiskPositionalIndex implements Index {
     public List<Posting> getRankedPostings(String term) {
         long bytePosition = binarySearchVocabulary(term);
         List<Posting> postings = new ArrayList<>();
+        if(bytePosition < 0) {
+            System.out.println("Query term not in vocabulary.");
+            return postings;
+        }
 
         try {
             mPostings.seek(bytePosition);

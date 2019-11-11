@@ -79,7 +79,6 @@ public class DiskIndexWriter {
                     wdt = 1 + Math.log(tftd);
                 }
 
-                wdt = roundUp(wdt);
                 out.writeDouble(wdt);
                 writeVBInt(out, p.getPositions().size());
                 int postingGap = 0;
@@ -130,11 +129,5 @@ public class DiskIndexWriter {
         }
 
         out.close();
-    }
-
-    private double roundUp(double input) {
-        BigDecimal bd = new BigDecimal(Double.toString(input));
-        bd = bd.setScale(5, RoundingMode.HALF_UP);
-        return bd.doubleValue();
     }
 }
