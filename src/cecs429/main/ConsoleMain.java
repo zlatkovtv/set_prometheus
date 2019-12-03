@@ -1,5 +1,6 @@
 package cecs429.main;
 
+import cecs429.documents.DocumentCorpus;
 import cecs429.index.DiskIndexWriter;
 import cecs429.index.Posting;
 import cecs429.index.ScorePosting;
@@ -139,8 +140,8 @@ public class ConsoleMain {
                             List<Integer> qrelRow = qrelCranefield.get(i);
                             int acc = 0;
                             double ap = 0;
-                            for (int j = 0; j < qrelRow.size(); j++) {
-                                if(docIds.get(j) == qrelRow.get(j)) {
+                            for (int j = 0; j < docIds.size(); j++) {
+                                if(qrelRow.contains(docIds.get(j) + 1)) {
                                     ++acc;
                                     ap += (double) acc/(j+1);
                                 }
@@ -187,7 +188,7 @@ public class ConsoleMain {
             reader = new BufferedReader(new FileReader(path));
             String line = reader.readLine();
             while (line != null) {
-                String[] s = line.split(" ");
+                String[] s = line.split("\\s+");
                 List<Integer> inner = new ArrayList<>();
                 for (String part: s) {
                     inner.add(Integer.parseInt(part));
