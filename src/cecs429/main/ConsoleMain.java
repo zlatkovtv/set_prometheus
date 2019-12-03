@@ -95,33 +95,19 @@ public class ConsoleMain {
 
                     List<Integer> docIds;
                     if (mode.startsWith("1")) {
+                        List<Double> indexRunTimes = new ArrayList<>();
                         for (int i = 0; i < queries.size(); i++) {
-                            String q = queries.get(i);
-
-                            List<Posting> results = new ArrayList<>();
-                            try {
-                                results = indexer.getResults(q, path);
-
-                                docIds = results.stream()
-                                        .map(x -> x.getDocumentId())
-                                        .collect(Collectors.toList());
-
-                                Set<Integer> set = new HashSet<>(docIds);
-                                docIds.clear();
-                                docIds.addAll(set);
-                                Collections.sort(docIds);
-
-                                for (Integer p : docIds) {
-                                    System.out.println("Document ID " + p);
-                                }
-
-                                System.out.println("Total: " + docIds.size());
-                            } catch (Exception e) {
-                                System.out.println(e.getMessage());
-                            }
-
-                            List<Integer> qrelRow = qrelCranefield.get(i);
+                            String q = queries.get(i).trim();
+                            long startTime = System.currentTimeMillis();
+                            List<Posting> results = indexer.getResults(q, path);
+                            long endTime = System.currentTimeMillis();
+                            indexRunTimes.add(((endTime - startTime) / 1000.00));
                         }
+
+                        int sumRunTimes = getAverage(indexRunTimes);
+
+                        System.out.println("The Mean Response Time to Satisfy a Ranked Query: " + ((double) sumRunTimes / queries.size()));
+                        System.out.println("The Throughput to Satisfy a Ranked Query (All Queries in Cranfield collection): " + (1.0 / (sumRunTimes / queries.size())));
                     } else if (mode.startsWith("2")) {
                         List<Double> averagePs = new ArrayList<>();
                         String q = queries.get(0);
@@ -133,15 +119,13 @@ public class ConsoleMain {
                             long startTime = System.currentTimeMillis();
                             results = indexer.getScoreResults(q, path);
                             long endTime = System.currentTimeMillis();
-                            indexRunTimes.add((double) ((endTime - startTime) / 1000.00));
+                            indexRunTimes.add( ((endTime - startTime) / 1000.00));
                         }
 
                         double sumRunTimes = 0;
                         for (double indx : indexRunTimes) {
                             sumRunTimes += indx;
                         }
-                        //System.out.println("Average Throughput for first query 30 times: " + (1.0/ ( (double) (endTime - startTime))/30) );
-
 
                         docIds = results.stream()
                                 .map(x -> x.getDocumentId())
@@ -151,15 +135,14 @@ public class ConsoleMain {
                         int acc = 0;
                         double ap = 0;
                         for (int j = 0; j < docIds.size(); j++) {
-
                             if (qrelRow.contains(docIds.get(j) + 1)) {
                                 System.out.print("Relevant");
                                 ++acc;
                                 ap += (double) acc / (j + 1);
                             } else {
-
                                 System.out.print("Not Relevant");
                             }
+
                             System.out.println( ": " + corpus.getDocument(docIds.get(j)).getTitle());
                         }
 
@@ -174,15 +157,8 @@ public class ConsoleMain {
                             long startTime = System.currentTimeMillis();
                             results = indexer.getScoreResults(q, path);
                             long endTime = System.currentTimeMillis();
-                            indexRunTimes.add((double) ((endTime - startTime) / 1000.00));
+                            indexRunTimes.add(((endTime - startTime) / 1000.00));
                             nonZeroAccums +=results.stream().filter(x -> x.getAccumulator() != 0).collect(Collectors.toList()).size();
-
-                            for (ScorePosting p : results) {
-                                //System.out.println("Document ID " + p.getDocumentId());
-                                //System.out.println("Document Score " + p.getAccumulator());
-                            }
-
-                            //System.out.println("Total: " + results.size());
 
                             docIds = results.stream()
                                     .map(x -> x.getDocumentId())
@@ -201,14 +177,8 @@ public class ConsoleMain {
                             averagePs.add(ap);
 
                         }
-                        sumRunTimes = 0;
-                        for (double indx : indexRunTimes) {
-                            sumRunTimes += indx;
-                        }
 
-                       // int nonZeroAccums =
-
-
+                        sumRunTimes = getAverage(indexRunTimes);
 
                         double sum = averagePs.stream().mapToDouble(i -> i).sum();
                         double map = sum / averagePs.size();
@@ -216,7 +186,6 @@ public class ConsoleMain {
                         System.out.println("The average number of nonzero accumulators used in the queries for Cranfield collection: " + (nonZeroAccums/queries.size()));
                         System.out.println("The Mean Response Time to Satisfy a Ranked Query: " + ((double) sumRunTimes / queries.size()));
                         System.out.println("The Throughput to Satisfy a Ranked Query (All Queries in Cranfield collection): " + (1.0 / (sumRunTimes / queries.size())));
-                        int a =0;
                     }
                     break;
                 default:
@@ -224,6 +193,14 @@ public class ConsoleMain {
                     break;
             }
         }
+    }
+
+    private static int getAverage(List<Double> indexRunTimes) {
+        int sumRunTimes = 0;
+        for (double indx : indexRunTimes) {
+            sumRunTimes += indx;
+        }
+        return sumRunTimes;
     }
 
     private static List<String> readQueries(String path) {
