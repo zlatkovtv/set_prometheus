@@ -5,6 +5,8 @@ import cecs429.util.VariableByteEncoder;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class DiskPositionalIndex implements Index {
@@ -120,12 +122,25 @@ public class DiskPositionalIndex implements Index {
                     currentPosition += readVBLong();
                     posting.addPosition(currentPosition);
                 }
+                //Set threshold here
+                if(numberOfPositions < 5) {
+                    continue;
+                }
 
                 postings.add(posting);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+        Comparator<Posting> postingLengthComparator = new Comparator<Posting>()
+        {
+            @Override
+            public int compare(Posting o1, Posting o2)
+            {
+                return Integer.compare(o1.getPositions().size(), o2.getPositions().size());
+            }
+        };
+        Collections.sort(postings, postingLengthComparator);
 
         return postings;
     }
@@ -156,11 +171,27 @@ public class DiskPositionalIndex implements Index {
 //                    posting.addPosition(currentPosition);
                 }
 
+                //Set threshold here
+                if(numberOfPositions < 5) {
+                    continue;
+                }
+
                 postings.add(posting);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+
+        Comparator<Posting> postingLengthComparator = new Comparator<Posting>()
+        {
+            @Override
+            public int compare(Posting o1, Posting o2)
+            {
+                return Integer.compare(o1.getPositions().size(), o2.getPositions().size());
+            }
+        };
+        Collections.sort(postings, postingLengthComparator);
 
         return postings;
     }

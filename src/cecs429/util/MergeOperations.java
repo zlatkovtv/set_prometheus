@@ -3,6 +3,8 @@ package cecs429.util;
 import cecs429.index.Posting;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class MergeOperations {
@@ -16,6 +18,8 @@ public class MergeOperations {
     */
 
     public static List<Posting> postionalIntersect(List<Posting> list1, List<Posting> list2, int distance) {
+        Collections.sort(list1, new docIdComparator());
+        Collections.sort(list2, new docIdComparator());
         List<Posting> answer = new ArrayList<>();
         int itr = 0;
         int jtr = 0;
@@ -35,25 +39,14 @@ public class MergeOperations {
                             tempList.add(list2Positions.get(jp));
                             break;
 
-                        } else if ( (list2Positions.get(jp) - list1Positions.get(ip)) > distance) {
+                        } else if ((list2Positions.get(jp) - list1Positions.get(ip)) > distance) {
                             break;
                         }
                         ++jp;
 
                     }
 
-//                    while (tempList.size() > 0 && (list1Positions.get(ip) - tempList.get(0)) >= distance) {
-////                        tempList.remove(0);
-////                    }
-//                    for (Integer ps : tempList) {
-////                        ArrayList<Integer> tmp2 = new ArrayList<>();
-////                        //tmp2.add(list1Positions.get(ip));
-////                        tmp2.add(ps);
-////                        Posting p = new Posting(list1.get(itr).getDocumentId(), tmp2);
-////                        answer.add(p);
-////
-////                    }
-                    if(tempList.size() != 0) {
+                    if (tempList.size() != 0) {
                         Posting p = new Posting(list1.get(itr).getDocumentId(), tempList);
                         answer.add(p);
                     }
@@ -74,6 +67,8 @@ public class MergeOperations {
     }
 
     public static List<Posting> unionMerge(List<Posting> pList1, List<Posting> pList2) {
+        Collections.sort(pList1, new docIdComparator());
+        Collections.sort(pList2, new docIdComparator());
         // Reference https://www.geeksforgeeks.org/two-pointers-technique/
 
         int i = 0, j = 0;
@@ -112,6 +107,8 @@ public class MergeOperations {
     }
 
     public static List<Posting> intersectMerge(List<Posting> pList1, List<Posting> pList2) {
+        Collections.sort(pList1, new docIdComparator());
+        Collections.sort(pList2, new docIdComparator());
         // Reference https://www.geeksforgeeks.org/two-pointers-technique/
         //This is written similar to how Dr. Terrel wrote on the board. I tried to mimic it as much
         //Declare "Pointers"
@@ -137,7 +134,10 @@ public class MergeOperations {
         return tmp;
 
     }
+
     public static List<Posting> notMerge(List<Posting> pList1, List<Posting> pList2) {
+        Collections.sort(pList1, new docIdComparator());
+        Collections.sort(pList2, new docIdComparator());
         int itr = 0;
         int jtr = 0;
         List<Posting> tmp = new ArrayList<>(); //Temporary list to hold resultes
@@ -161,11 +161,12 @@ public class MergeOperations {
         return tmp;
 
     }
+
     public static List<Posting> normalizeToUnique(List<Posting> list) {
         List<Posting> unique = new ArrayList<>();
         List<Integer> added = new ArrayList<>();
-        for (Posting p: list) {
-            if(!added.contains(p.getDocumentId())) {
+        for (Posting p : list) {
+            if (!added.contains(p.getDocumentId())) {
                 unique.add(p);
                 added.add(p.getDocumentId());
             }
@@ -173,4 +174,13 @@ public class MergeOperations {
 
         return unique;
     }
+
+    public static class docIdComparator implements Comparator<Posting> {
+
+        public int compare(Posting o1, Posting o2) {
+            return Integer.compare(o1.getDocumentId(), o2.getDocumentId());
+        }
+    }
+
 }
+

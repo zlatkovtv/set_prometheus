@@ -68,7 +68,7 @@ public class RankedQuery  {
         List<ScorePosting> topKResults = new ArrayList<>();
         int counter = 0;
         while(!priorityQueue.isEmpty()) {
-            if(counter >= 10) {
+            if(counter >= 50) {
                 break;
             }
             Map.Entry<Integer, Double> pair = priorityQueue.poll();
