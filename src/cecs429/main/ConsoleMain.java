@@ -17,7 +17,7 @@ Please use UIMain as this is just for quickly running and debugging
  */
 
 public class ConsoleMain {
-    private static final String path = "C:\\Users\\Memphis\\Desktop\\Projects\\CSULB\\SET\\Homework3\\assets\\ml3-cranfield";
+    private static final String path = "C:\\Users\\zack\\Documents\\relevance_cranfield";
     private static Scanner reader = new Scanner(System.in);
 
     public static void main(String[] args) throws IOException {
@@ -28,10 +28,11 @@ public class ConsoleMain {
         System.out.print("\n\nPlease make a selection: ");
 
         BetterTermDocumentIndexer indexer = new BetterTermDocumentIndexer(Paths.get(path).toAbsolutePath());
-
+        DocumentCorpus corpus = indexer.getCorpus();
+        corpus.getDocuments();
         while (true) {
             String input = reader.nextLine().toLowerCase();
-            String mode ="";
+            String mode = "";
             switch (input) {
                 case ":q":
                     System.exit(0);
@@ -68,7 +69,7 @@ public class ConsoleMain {
                             }
 
                             System.out.println("Total: " + docIds.size());
-                        } catch(Exception e) {
+                        } catch (Exception e) {
                             System.out.println(e.getMessage());
                         }
                     } else if (mode.startsWith("2")) {
@@ -123,36 +124,99 @@ public class ConsoleMain {
                         }
                     } else if (mode.startsWith("2")) {
                         List<Double> averagePs = new ArrayList<>();
-                        for (int i = 0; i < queries.size(); i++) {
-                            String q = queries.get(i);
-                            List<ScorePosting> results = new ArrayList<>();
+                        String q = queries.get(0);
+                        List<ScorePosting> results = new ArrayList<>();
+                        List<Double> indexRunTimes = new ArrayList<>();
+
+                        ///////////////////////////////////////////////////////////////////////////////////////////////
+                        for (int i = 0; i < 30; i++) {
+                            long startTime = System.currentTimeMillis();
                             results = indexer.getScoreResults(q, path);
+                            long endTime = System.currentTimeMillis();
+                            indexRunTimes.add((double) ((endTime - startTime) / 1000.00));
+                        }
+
+                        double sumRunTimes = 0;
+                        for (double indx : indexRunTimes) {
+                            sumRunTimes += indx;
+                        }
+                        //System.out.println("Average Throughput for first query 30 times: " + (1.0/ ( (double) (endTime - startTime))/30) );
+
+
+                        docIds = results.stream()
+                                .map(x -> x.getDocumentId())
+                                .collect(Collectors.toList());
+
+                        List<Integer> qrelRow = qrelCranefield.get(0);
+                        int acc = 0;
+                        double ap = 0;
+                        for (int j = 0; j < docIds.size(); j++) {
+
+                            if (qrelRow.contains(docIds.get(j) + 1)) {
+                                System.out.print("Relevant");
+                                ++acc;
+                                ap += (double) acc / (j + 1);
+                            } else {
+
+                                System.out.print("Not Relevant");
+                            }
+                            System.out.println( ": " + corpus.getDocument(docIds.get(j)).getTitle());
+                        }
+
+                        ap = ap / qrelRow.size();
+                        System.out.println("\nAverage Throughput for first query in Cranfield collection 30 times: " + (1.0 / (sumRunTimes / 30.0)));
+                        System.out.println("Average Precision: " + ap);
+                        ///////////////////////////////////////////////////////////////////////////////////////////////
+                        indexRunTimes = new ArrayList<>();
+                        int nonZeroAccums = 0;
+                        for (int i = 0; i < queries.size(); i++) {
+                            q = queries.get(i);
+                            long startTime = System.currentTimeMillis();
+                            results = indexer.getScoreResults(q, path);
+                            long endTime = System.currentTimeMillis();
+                            indexRunTimes.add((double) ((endTime - startTime) / 1000.00));
+                            nonZeroAccums +=results.stream().filter(x -> x.getAccumulator() != 0).collect(Collectors.toList()).size();
+
                             for (ScorePosting p : results) {
-                                System.out.println("Document ID " + p.getDocumentId());
-                                System.out.println("Document Score " + p.getAccumulator());
+                                //System.out.println("Document ID " + p.getDocumentId());
+                                //System.out.println("Document Score " + p.getAccumulator());
                             }
 
-                            System.out.println("Total: " + results.size());
+                            //System.out.println("Total: " + results.size());
 
                             docIds = results.stream()
                                     .map(x -> x.getDocumentId())
                                     .collect(Collectors.toList());
-                            List<Integer> qrelRow = qrelCranefield.get(i);
-                            int acc = 0;
-                            double ap = 0;
+                            qrelRow = qrelCranefield.get(i);
+                            acc = 0;
+                            ap = 0;
                             for (int j = 0; j < docIds.size(); j++) {
-                                if(qrelRow.contains(docIds.get(j) + 1)) {
+                                if (qrelRow.contains(docIds.get(j) + 1)) {
                                     ++acc;
-                                    ap += (double) acc/(j+1);
+                                    ap += (double) acc / (j + 1);
                                 }
                             }
 
                             ap = ap / qrelRow.size();
                             averagePs.add(ap);
+
+                        }
+                        sumRunTimes = 0;
+                        for (double indx : indexRunTimes) {
+                            sumRunTimes += indx;
                         }
 
+                       // int nonZeroAccums =
+
+
+
                         double sum = averagePs.stream().mapToDouble(i -> i).sum();
-                        double map = sum/averagePs.size();
+                        double map = sum / averagePs.size();
+                        System.out.println("\nThe MAP for Cranfield collection : " + map);
+                        System.out.println("The average number of nonzero accumulators used in the queries for Cranfield collection: " + (nonZeroAccums/queries.size()));
+                        System.out.println("The Mean Response Time to Satisfy a Ranked Query: " + ((double) sumRunTimes / queries.size()));
+                        System.out.println("The Throughput to Satisfy a Ranked Query (All Queries in Cranfield collection): " + (1.0 / (sumRunTimes / queries.size())));
+                        int a =0;
                     }
                     break;
                 default:
@@ -177,7 +241,7 @@ public class ConsoleMain {
             e.printStackTrace();
         }
 
-        System.out.println("OK");
+        //System.out.println("OK");
         return result;
     }
 
@@ -190,7 +254,7 @@ public class ConsoleMain {
             while (line != null) {
                 String[] s = line.split("\\s+");
                 List<Integer> inner = new ArrayList<>();
-                for (String part: s) {
+                for (String part : s) {
                     inner.add(Integer.parseInt(part));
                 }
 
@@ -202,7 +266,7 @@ public class ConsoleMain {
             e.printStackTrace();
         }
 
-        System.out.println("OK");
+        //System.out.println("OK");
         return result;
     }
 }

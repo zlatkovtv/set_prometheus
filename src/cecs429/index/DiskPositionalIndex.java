@@ -150,7 +150,7 @@ public class DiskPositionalIndex implements Index {
         long bytePosition = binarySearchVocabulary(term);
         List<Posting> postings = new ArrayList<>();
         if(bytePosition < 0) {
-            System.out.println("Query term not in vocabulary.");
+            //System.out.println("Query term not in vocabulary.");
             return postings;
         }
 
