@@ -15,12 +15,17 @@ import java.util.*;
 public class RankedQuery  {
     private String query;
     private int corpusSize;
+    private int nonZeroAccumCount;
 
     public RankedQuery(String term, int corpusSize) {
         this.query = term;
         this.corpusSize = corpusSize;
+        this.nonZeroAccumCount = 0;
     }
 
+    public int getNonZeroAccumCount() {
+        return this.nonZeroAccumCount;
+    }
 
     public List<ScorePosting> getPostings(Index index, TokenProcessor tokenProcessor) {
         Map<Integer, Double> accumulators = new HashMap<>();
@@ -62,6 +67,11 @@ public class RankedQuery  {
         });
 
         for (Map.Entry<Integer, Double> pair: accumulators.entrySet()) {
+            // save number of non zero accums and bubble up to main
+            if(pair.getValue() != 0) {
+                ++this.nonZeroAccumCount;
+            }
+
             priorityQueue.offer(pair);
         }
 
