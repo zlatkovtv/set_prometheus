@@ -26,6 +26,7 @@ public class BetterTermDocumentIndexer {
     private BooleanQueryParser queryParser;
     private AdvancedTokenProcessor tokenProcessor;
     private ArrayList<Double> ld;
+    private RankedQuery rankedQuery;
 
     public BetterTermDocumentIndexer(Path path) {
         queryParser = new BooleanQueryParser();
@@ -68,15 +69,14 @@ public class BetterTermDocumentIndexer {
             throw new RuntimeException("Index has not been built yet.");
         }
 
-        RankedQuery qc;
+        this.rankedQuery = new RankedQuery(query, corpus.getCorpusSize());
 
-
-        qc = new RankedQuery(query, corpus.getCorpusSize());
-
-
-        return qc.getPostings(this.diskIndex, tokenProcessor);
+        return this.rankedQuery.getPostings(this.diskIndex, tokenProcessor);
     }
 
+    public int getNonZeroAccumCount() {
+        return this.rankedQuery.getNonZeroAccumCount();
+    }
     public String stemToken(String token) {
         return Stemmer.getInstance().stemToken(token);
     }

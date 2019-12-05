@@ -32,6 +32,10 @@ public class AdvancedTokenProcessor implements TokenProcessor {
 
     public String processQueryToken(String token)
     {
+        if(token.isEmpty()) {
+            return token;
+        }
+
         if(token.charAt(token.length()-1) == '*' || token.charAt(0) == '*') {
             return toLowerCase(removeApost(token));
         } else {
